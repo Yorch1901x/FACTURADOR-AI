@@ -13,23 +13,36 @@ const Dashboard: React.FC<DashboardProps> = ({ invoices, products }) => {
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
   const [loadingAi, setLoadingAi] = useState(false);
 
-  // Calculate Stats
-  const totalRevenue = useMemo(() => invoices.reduce((acc, curr) => acc + curr.total, 0), [invoices]);
-  const paidInvoices = useMemo(() => invoices.filter(i => i.status === 'paid').length, [invoices]);
-  const pendingInvoices = useMemo(() => invoices.filter(i => i.status === 'pending').length, [invoices]);
+  // 1. Filter out cancelled invoices for financial calculations
+  // FIX: Ensure charts and totals ignore cancelled items
+  const activeInvoices = useMemo(() => invoices.filter(i => i.status !== 'cancelled'), [invoices]);
+
+  // Calculate Stats based on ACTIVE invoices only
+  const totalRevenue = useMemo(() => activeInvoices.reduce((acc, curr) => acc + curr.total, 0), [activeInvoices]);
+  const paidInvoices = useMemo(() => activeInvoices.filter(i => i.status === 'paid').length, [activeInvoices]);
+  const pendingInvoices = useMemo(() => activeInvoices.filter(i => i.status === 'pending').length, [activeInvoices]);
+  
+  // Stock is independent of invoice status (it's handled by the inventory component/service), 
+  // but low stock count is calculated from current products list passed as prop.
   const lowStockCount = useMemo(() => products.filter(p => p.stock < 5).length, [products]);
 
-  // Chart Data
+  // Chart Data: Use active invoices. 
+  // Assuming 'invoices' comes sorted by date DESC (newest first) from StorageService.
+  // We take the top 7 (newest), then reverse them to show chronological order (Left=Oldest, Right=Newest) on the chart.
   const chartData = useMemo(() => {
-    return invoices.slice(-7).map(inv => ({
-      name: new Date(inv.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-      amount: inv.total
-    }));
-  }, [invoices]);
+    return activeInvoices
+      .slice(0, 7)
+      .reverse() 
+      .map(inv => ({
+        name: new Date(inv.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+        amount: inv.total
+      }));
+  }, [activeInvoices]);
 
   const handleAiAnalysis = async () => {
     setLoadingAi(true);
-    const result = await GeminiService.analyzeBusinessData(invoices, products);
+    // We send active invoices to AI for better context
+    const result = await GeminiService.analyzeBusinessData(activeInvoices, products);
     setAiAnalysis(result);
     setLoadingAi(false);
   };
@@ -87,11 +100,11 @@ const Dashboard: React.FC<DashboardProps> = ({ invoices, products }) => {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
-          title="Ingresos Totales" 
+          title="Ingresos Netos" 
           value={`$${totalRevenue.toFixed(2)}`} 
           icon={DollarSign} 
           colorClass="text-green-600 bg-green-500"
-          subtext="Actualizado hoy"
+          subtext="Facturas activas"
         />
         <StatCard 
           title="Facturas Pagadas" 
@@ -121,7 +134,7 @@ const Dashboard: React.FC<DashboardProps> = ({ invoices, products }) => {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
           <div className="flex justify-between items-center mb-6">
              <h3 className="text-lg font-bold text-gray-800">Ventas Recientes</h3>
-             <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-md">Últimos 7 días</span>
+             <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-md">Últimos 7 movimientos</span>
           </div>
           <div className="h-72 w-full">
             {chartData.length > 0 ? (

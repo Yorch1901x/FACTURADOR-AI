@@ -1,24 +1,12 @@
 
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getFirestore, Firestore } from "firebase/firestore";
+import { getAuth, Auth } from "firebase/auth";
 
-// Access environment variables safely
-// Vite replaces process.env.FIREBASE_API_KEY with the string value defined in vite.config.ts
-const envApiKey = process.env.FIREBASE_API_KEY;
-
-// Validation to prevent "Missing App configuration value" crash
-// We use a placeholder if missing so initializeApp doesn't throw synchronously
-const firebaseApiKey = envApiKey || "MISSING_KEY_PLACEHOLDER";
-
-if (!envApiKey) {
-  console.warn("WARNING: Firebase API Key is missing. The app will load but database connections will fail.");
-}
-
-// Your web app's Firebase configuration
+// Configuración específica del proyecto
 const firebaseConfig = {
-  apiKey: firebaseApiKey,
+  apiKey: "AIzaSyANHrj6TVTf_OCslCyJqvzPXXAA3shTmsg",
   authDomain: "gestor-de-gasto-mobile.firebaseapp.com",
   projectId: "gestor-de-gasto-mobile",
   storageBucket: "gestor-de-gasto-mobile.firebasestorage.app",
@@ -27,20 +15,34 @@ const firebaseConfig = {
   measurementId: "G-06BKNCTLWJ"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+let app = null;
+let analytics = null;
+let db: Firestore | null = null;
+let auth: Auth | null = null;
 
-// Only initialize analytics if we have a real key to avoid 400 INVALID_ARGUMENT errors on load
-let analytics: any = null;
-if (envApiKey && envApiKey !== "MISSING_KEY_PLACEHOLDER") {
-  try {
-     analytics = getAnalytics(app);
-  } catch (e) {
-     console.warn("Analytics skipped:", e);
+try {
+  app = initializeApp(firebaseConfig);
+  
+  // Only initialize analytics in browser environment
+  if (typeof window !== 'undefined') {
+    try {
+        analytics = getAnalytics(app);
+    } catch (e) {
+        console.warn("Analytics initialization skipped (likely due to environment block)", e);
+    }
   }
+  
+  db = getFirestore(app);
+  auth = getAuth(app);
+  console.log("✅ Firebase connected successfully to:", firebaseConfig.projectId);
+} catch (error) {
+  console.error("❌ Firebase initialization error:", error);
+  // Fallback to null to trigger offline mode in services if connection fails completely
+  db = null;
+  auth = null;
 }
 
-const db = getFirestore(app);
-const auth = getAuth(app);
+// Export initialization status for UI indicators
+export const isFirebaseInitialized = !!app;
 
 export { app, analytics, db, auth };
