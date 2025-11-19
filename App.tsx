@@ -24,7 +24,7 @@ const AuthenticatedApp: React.FC = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]); // New
   const [settings, setSettings] = useState<AppSettings>({
-    companyName: '', companyTaxId: '', currency: '', taxRate: 0, address: ''
+    companyName: '', companyTaxId: '', currency: '', taxRate: 0, address: '', exchangeRate: 520
   });
 
   // Initial Data Load - Only when user is present
