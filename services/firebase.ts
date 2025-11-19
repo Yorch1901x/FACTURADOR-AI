@@ -1,11 +1,13 @@
+
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 // Your web app's Firebase configuration
+// Se utilizan variables de entorno para evitar exponer credenciales en el repositorio
 const firebaseConfig = {
-  apiKey: "AIzaSyANHrj6TVTf_OCslCyJqvzPXXAA3shTmsg",
+  apiKey: process.env.FIREBASE_API_KEY,
   authDomain: "gestor-de-gasto-mobile.firebaseapp.com",
   projectId: "gestor-de-gasto-mobile",
   storageBucket: "gestor-de-gasto-mobile.firebasestorage.app",
