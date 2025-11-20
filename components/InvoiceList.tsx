@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Invoice, AppSettings, Customer } from '../types';
-import { Eye, Printer, FileText, X, CheckCircle, AlertTriangle, Clock, Ban, FileWarning } from 'lucide-react';
+import { Eye, Printer, FileText, X, CheckCircle, AlertTriangle, Clock, Ban, FileWarning, ChevronRight } from 'lucide-react';
 import { StorageService } from '../services/storageService';
 import InvoicePrint from './InvoicePrint';
 
@@ -92,80 +92,127 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, onCancelInvoice }) 
   };
 
   return (
-    <div className="space-y-8 animate-fade-in pb-10">
+    <div className="space-y-6 md:space-y-8 animate-fade-in pb-10">
       <div>
         <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Historial de Facturas</h2>
-        <p className="text-gray-500 mt-1">Registro completo de movimientos electrónicos</p>
+        <p className="text-gray-500 mt-1 text-sm md:text-base">Registro completo de movimientos electrónicos</p>
       </div>
       
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {invoices.length === 0 ? (
+           <div className="flex flex-col items-center justify-center py-12 text-gray-400 bg-white rounded-2xl border border-dashed border-gray-200">
+              <FileText size={48} strokeWidth={1} />
+              <p className="mt-2 font-medium">No hay facturas registradas</p>
+           </div>
+        ) : (
+          invoices.map(inv => (
+            <div key={inv.id} className={`bg-white p-5 rounded-2xl shadow-sm border ${inv.status === 'cancelled' ? 'border-red-100 bg-red-50/10' : 'border-gray-100'} relative overflow-hidden`}>
+              {inv.status === 'cancelled' && <div className="absolute top-0 right-0 bg-red-100 text-red-600 px-2 py-1 rounded-bl-lg text-[10px] font-bold uppercase">Anulada</div>}
+              
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                   <p className="text-xs font-bold text-indigo-500 mb-0.5">{inv.number}</p>
+                   <h3 className="font-bold text-gray-900 text-lg">{inv.customerName}</h3>
+                   <p className="text-xs text-gray-500">{new Date(inv.date).toLocaleDateString()} • {new Date(inv.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                </div>
+                <div className="text-right">
+                   <p className={`text-lg font-bold ${inv.status === 'cancelled' ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                     {getCurrencySymbol(inv)} {inv.total.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                   </p>
+                   <div className="flex justify-end mt-1">
+                     {getHaciendaStatusBadge(inv.haciendaStatus)}
+                   </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-between items-center pt-3 border-t border-gray-50 mt-2">
+                 <span className={`px-2 py-1 rounded-lg text-xs font-semibold border ${getStatusStyles(inv.status)}`}>
+                    {getStatusLabel(inv.status)}
+                 </span>
+                 <div className="flex gap-2">
+                    {inv.status !== 'cancelled' && (
+                      <button onClick={() => onCancelInvoice(inv)} className="p-2 bg-red-50 text-red-600 rounded-lg active:scale-95 transition-all border border-red-100">
+                        <Ban size={18} />
+                      </button>
+                    )}
+                    <button onClick={() => handlePrint(inv)} className="px-4 py-2 bg-slate-900 text-white rounded-lg active:scale-95 transition-all shadow-md flex items-center gap-2 font-medium text-sm">
+                      <Printer size={16} /> Imprimir
+                    </button>
+                 </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
-          <div className="min-w-[900px] md:min-w-0">
-            <table className="w-full text-left text-sm text-gray-600">
-              <thead className="bg-gray-50 text-gray-500 uppercase text-xs font-semibold tracking-wider">
-                <tr>
-                  <th className="px-6 py-4 rounded-tl-2xl">Número / Hacienda</th>
-                  <th className="px-6 py-4">Cliente</th>
-                  <th className="px-6 py-4">Fecha Emisión</th>
-                  <th className="px-6 py-4 text-right">Total</th>
-                  <th className="px-6 py-4 text-center">Estado Pago</th>
-                  <th className="px-6 py-4 text-center rounded-tr-2xl">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {invoices.length === 0 ? (
-                   <tr>
-                     <td colSpan={6} className="px-6 py-16 text-center">
-                        <div className="flex flex-col items-center justify-center text-gray-400 opacity-60">
-                          <FileText size={48} strokeWidth={1} />
-                          <p className="mt-2 font-medium">No hay facturas registradas</p>
-                        </div>
-                     </td>
-                   </tr>
-                ) : (
-                  invoices.map(inv => (
-                    <tr key={inv.id} className={`transition-colors group ${inv.status === 'cancelled' ? 'bg-gray-50 opacity-75' : 'hover:bg-indigo-50/40'}`}>
-                      <td className="px-6 py-4">
-                         <div className={`font-mono font-medium ${inv.status === 'cancelled' ? 'text-gray-500 line-through decoration-red-400' : 'text-indigo-600'}`}>{inv.number}</div>
-                         <div className="mt-1">
-                            {getHaciendaStatusBadge(inv.haciendaStatus)}
-                         </div>
-                      </td>
-                      <td className="px-6 py-4 font-medium text-gray-900">{inv.customerName}</td>
-                      <td className="px-6 py-4 text-gray-500">{new Date(inv.date).toLocaleDateString()}</td>
-                      <td className={`px-6 py-4 text-right font-bold ${inv.status === 'cancelled' ? 'text-gray-400 line-through decoration-red-400' : 'text-gray-900'}`}>{getCurrencySymbol(inv)} {inv.total.toFixed(2)}</td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusStyles(inv.status)}`}>
-                          {getStatusLabel(inv.status)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <div className="flex justify-center gap-2">
+          <table className="w-full text-left text-sm text-gray-600">
+            <thead className="bg-gray-50 text-gray-500 uppercase text-xs font-semibold tracking-wider">
+              <tr>
+                <th className="px-6 py-4 rounded-tl-2xl">Número / Hacienda</th>
+                <th className="px-6 py-4">Cliente</th>
+                <th className="px-6 py-4">Fecha Emisión</th>
+                <th className="px-6 py-4 text-right">Total</th>
+                <th className="px-6 py-4 text-center">Estado Pago</th>
+                <th className="px-6 py-4 text-center rounded-tr-2xl">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {invoices.length === 0 ? (
+                 <tr>
+                   <td colSpan={6} className="px-6 py-16 text-center">
+                      <div className="flex flex-col items-center justify-center text-gray-400 opacity-60">
+                        <FileText size={48} strokeWidth={1} />
+                        <p className="mt-2 font-medium">No hay facturas registradas</p>
+                      </div>
+                   </td>
+                 </tr>
+              ) : (
+                invoices.map(inv => (
+                  <tr key={inv.id} className={`transition-colors group ${inv.status === 'cancelled' ? 'bg-gray-50 opacity-75' : 'hover:bg-indigo-50/40'}`}>
+                    <td className="px-6 py-4">
+                       <div className={`font-mono font-medium ${inv.status === 'cancelled' ? 'text-gray-500 line-through decoration-red-400' : 'text-indigo-600'}`}>{inv.number}</div>
+                       <div className="mt-1">
+                          {getHaciendaStatusBadge(inv.haciendaStatus)}
+                       </div>
+                    </td>
+                    <td className="px-6 py-4 font-medium text-gray-900">{inv.customerName}</td>
+                    <td className="px-6 py-4 text-gray-500">{new Date(inv.date).toLocaleDateString()}</td>
+                    <td className={`px-6 py-4 text-right font-bold ${inv.status === 'cancelled' ? 'text-gray-400 line-through decoration-red-400' : 'text-gray-900'}`}>{getCurrencySymbol(inv)} {inv.total.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-center">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusStyles(inv.status)}`}>
+                        {getStatusLabel(inv.status)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <div className="flex justify-center gap-2">
+                        <button 
+                          onClick={() => handlePrint(inv)}
+                          className="p-2 text-gray-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors" 
+                          title="Imprimir"
+                        >
+                          <Printer size={18} />
+                        </button>
+                        
+                        {inv.status !== 'cancelled' && (
                           <button 
-                            onClick={() => handlePrint(inv)}
-                            className="p-2 text-gray-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors" 
-                            title="Imprimir"
+                            onClick={() => onCancelInvoice(inv)}
+                            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100" 
+                            title="Anular Factura (Devolver Stock)"
                           >
-                            <Printer size={18} />
+                            <Ban size={18} />
                           </button>
-                          
-                          {inv.status !== 'cancelled' && (
-                            <button 
-                              onClick={() => onCancelInvoice(inv)}
-                              className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100" 
-                              title="Anular Factura (Devolver Stock)"
-                            >
-                              <Ban size={18} />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 

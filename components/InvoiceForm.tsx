@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Product, Customer, Invoice, InvoiceItem, AppSettings } from '../types';
-import { Plus, Trash2, Search, CreditCard, CheckCircle2, X, Printer, ArrowRight, FileCheck, Wallet, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, Search, CreditCard, CheckCircle2, X, Printer, ArrowRight, FileCheck, Wallet, RefreshCw, Calendar } from 'lucide-react';
 import InvoicePrint from './InvoicePrint';
 
 interface InvoiceFormProps {
@@ -246,12 +246,12 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                <p className="text-xs text-green-600">Documento electrónico generado. Costo de venta registrado.</p>
              </div>
            </div>
-           <div className="flex gap-3 w-full md:w-auto">
+           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
               <button onClick={() => navigate('/invoices')} className="flex-1 md:flex-none px-4 py-2 text-gray-600 hover:bg-gray-50 border border-gray-200 rounded-lg font-medium transition-colors text-sm">
-                Ir al Historial
+                Historial
               </button>
               <button onClick={handleNewInvoice} className="flex-1 md:flex-none px-4 py-2 text-indigo-600 hover:bg-indigo-50 border border-indigo-200 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm">
-                <Plus size={16} /> Nueva Factura
+                <Plus size={16} /> Nueva
               </button>
               <button onClick={handlePrint} className="flex-1 md:flex-none px-6 py-2 bg-slate-900 text-white hover:bg-slate-800 rounded-lg font-bold shadow-lg shadow-slate-200 transition-all flex items-center justify-center gap-2 active:scale-95">
                 <Printer size={18} /> IMPRIMIR
@@ -260,8 +260,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
         </div>
 
         {/* Printable Area Preview */}
-        <div className="flex-1 overflow-auto bg-gray-500/10 p-4 md:p-8 rounded-xl border border-gray-200 shadow-inner flex justify-center">
-           <div className="bg-white shadow-2xl scale-90 origin-top md:scale-100 transition-transform w-full max-w-[210mm]">
+        <div className="flex-1 overflow-auto bg-gray-500/10 p-2 md:p-8 rounded-xl border border-gray-200 shadow-inner flex justify-center">
+           <div className="bg-white shadow-2xl scale-[0.6] sm:scale-90 origin-top md:scale-100 transition-transform w-full max-w-[210mm]">
               <InvoicePrint invoice={createdInvoice} settings={settings} customer={currentCustomer} />
            </div>
         </div>
@@ -277,10 +277,10 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
            <h2 className="text-2xl font-bold text-gray-900">Facturación / POS</h2>
            <p className="text-sm text-gray-500">Ingrese los detalles de la venta</p>
         </div>
-        <div className="text-left sm:text-right flex flex-col items-end gap-1">
-           <div className="bg-indigo-50 p-2 rounded-lg sm:bg-transparent sm:p-0">
-            <div className="text-xs text-gray-500 font-mono uppercase">Fecha Actual</div>
-            <div className="font-bold text-gray-800">{new Date().toLocaleDateString()}</div>
+        <div className="flex justify-between sm:flex-col items-center sm:items-end gap-2">
+           <div className="bg-indigo-50 p-2 rounded-lg sm:bg-transparent sm:p-0 text-right">
+            <div className="text-xs text-gray-500 font-mono uppercase hidden md:block">Fecha Actual</div>
+            <div className="font-bold text-gray-800 text-sm">{new Date().toLocaleDateString()}</div>
           </div>
           <div className="text-xs text-indigo-600 font-medium flex items-center gap-1 bg-indigo-50 px-2 py-0.5 rounded">
             <RefreshCw size={10} /> T.C. ₡{settings.exchangeRate || 520}
@@ -289,7 +289,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
       </div>
 
       {/* --- SECTION 1: HEADER INFO --- */}
-      <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+      <div className="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-200">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
            <div className="md:col-span-2">
              <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Cliente</label>
@@ -307,61 +307,66 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                </select>
              </div>
            </div>
-           <div>
-             <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Moneda Factura</label>
-             <div className="relative">
-               <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-               <select 
-                  className="w-full pl-9 pr-3 py-2.5 bg-indigo-50 border border-indigo-100 text-indigo-900 font-semibold rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
-                  value={currency}
-                  onChange={e => {
-                    // If items exist, warn. If empty, just change.
-                    if (items.length > 0) {
-                      if(confirm('Cambiar la moneda recalculará los montos. Se recomienda limpiar los ítems. ¿Desea continuar?')) {
-                        setItems([]); 
-                        setCurrency(e.target.value);
-                      }
-                    } else {
-                      setCurrency(e.target.value);
-                    }
-                  }}
-               >
-                 <option value="CRC">Colones (₡)</option>
-                 <option value="USD">Dólares ($)</option>
-               </select>
-             </div>
+           <div className="grid grid-cols-2 md:grid-cols-1 gap-4">
+               <div>
+                 <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Moneda</label>
+                 <div className="relative">
+                   <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                   <select 
+                      className="w-full pl-9 pr-3 py-2.5 bg-indigo-50 border border-indigo-100 text-indigo-900 font-semibold rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                      value={currency}
+                      onChange={e => {
+                        // If items exist, warn. If empty, just change.
+                        if (items.length > 0) {
+                          if(confirm('Cambiar la moneda recalculará los montos. Se recomienda limpiar los ítems. ¿Desea continuar?')) {
+                            setItems([]); 
+                            setCurrency(e.target.value);
+                          }
+                        } else {
+                          setCurrency(e.target.value);
+                        }
+                      }}
+                   >
+                     <option value="CRC">Colones (₡)</option>
+                     <option value="USD">Dólares ($)</option>
+                   </select>
+                 </div>
+               </div>
+               <div>
+                 <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Condición</label>
+                 <select 
+                    className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                    value={saleCondition}
+                    onChange={e => setSaleCondition(e.target.value)}
+                 >
+                    <option value="Contado">Contado</option>
+                    <option value="Crédito">Crédito</option>
+                 </select>
+               </div>
            </div>
-           <div>
-             <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Condición Venta</label>
-             <select 
-                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
-                value={saleCondition}
-                onChange={e => setSaleCondition(e.target.value)}
-             >
-                <option value="Contado">Contado</option>
-                <option value="Crédito">Crédito</option>
-                <option value="Consignación">Consignación</option>
-             </select>
-           </div>
+           {/* Date Field: Now Visible on Mobile too but styled to fit */}
            <div>
              <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Fecha Emisión</label>
-             <input 
-                type="date" 
-                value={date} 
-                onChange={e => setDate(e.target.value)} 
-                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
-              />
+             <div className="relative">
+               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 md:hidden" size={14} />
+               <input 
+                  type="date" 
+                  value={date} 
+                  onChange={e => setDate(e.target.value)} 
+                  className="w-full pl-9 md:pl-3 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                />
+             </div>
            </div>
         </div>
       </div>
 
-      {/* --- SECTION 2: ITEM ENTRY ROW --- */}
-      <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-inner">
-         {/* Use flex-wrap to prevent overlapping inputs on smaller screens */}
-         <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-end flex-wrap">
+      {/* --- SECTION 2: ITEM ENTRY ROW (STACKED ON MOBILE) --- */}
+      <div className="bg-slate-50 p-4 md:p-5 rounded-xl border border-slate-200 shadow-inner">
+         {/* Flex col on mobile, row on xl */}
+         <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-end">
             
-            {/* Radio Type */}
-            <div className="flex items-center gap-4 pb-2 px-2 w-full sm:w-auto xl:w-auto justify-start h-[66px] items-end">
+            {/* Radio Type - Horizontal on mobile */}
+            <div className="flex items-center gap-4 pb-0 xl:pb-2 w-full xl:w-auto justify-start xl:h-[66px] xl:items-end border-b xl:border-0 border-slate-200 mb-2 xl:mb-0">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="radio" name="type" className="text-indigo-600 w-4 h-4" checked={!isService} onChange={() => setIsService(false)} />
                 <span className="text-sm font-medium text-slate-700">Producto</span>
@@ -372,8 +377,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
               </label>
             </div>
 
-            {/* Product Select */}
-            <div className="w-full sm:flex-1 xl:flex-grow xl:min-w-[280px]">
+            {/* Product Select - Full width mobile */}
+            <div className="w-full xl:flex-grow xl:min-w-[280px]">
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Producto / Servicio</label>
               <select 
                 className="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
@@ -389,10 +394,10 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
               </select>
             </div>
 
-            <div className="flex w-full sm:w-auto gap-4 flex-wrap sm:flex-nowrap">
-                {/* Unit Price (Editable/Viewable) */}
-                 <div className="w-full sm:w-28">
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Precio Unit.</label>
+            <div className="grid grid-cols-3 xl:flex gap-3 w-full xl:w-auto">
+                {/* Unit Price */}
+                 <div className="col-span-3 sm:col-span-1 xl:w-28">
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Precio</label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-semibold text-xs">{getCurrencySymbol()}</span>
                     <input 
@@ -406,7 +411,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                 </div>
 
                 {/* Qty */}
-                <div className="w-1/2 sm:w-20">
+                <div className="col-span-1 xl:w-20">
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Cant.</label>
                   <input 
                     type="number" min="1" 
@@ -416,7 +421,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                   />
                 </div>
                  {/* Discount */}
-                <div className="w-1/2 sm:w-24">
+                <div className="col-span-2 sm:col-span-1 xl:w-24">
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">% Desc.</label>
                   <div className="relative">
                     <input 
@@ -430,19 +435,20 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                 </div>
             </div>
 
-            {/* Detail */}
+            {/* Detail - Full width mobile */}
             <div className="w-full xl:flex-grow xl:min-w-[200px]">
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Detalle / Descripción</label>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Detalle (Opcional)</label>
               <input 
                 type="text" 
                 className="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
                 value={itemDescription}
                 onChange={e => setItemDescription(e.target.value)}
+                placeholder="Descripción adicional..."
               />
             </div>
 
             {/* Add Button */}
-            <div className="w-full xl:w-auto">
+            <div className="w-full xl:w-auto mt-2 xl:mt-0">
               <button 
                 onClick={handleAddItem}
                 className="w-full xl:w-auto bg-indigo-700 text-white px-6 py-2.5 rounded-lg hover:bg-indigo-800 shadow-md transition-all flex items-center justify-center gap-2 text-sm font-bold active:scale-95 h-[42px]"
@@ -451,22 +457,19 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
               </button>
             </div>
          </div>
-         <div className="flex items-center gap-3 mt-2">
-           <div className="text-xs text-slate-400 pl-1 flex items-center gap-1">
-             <RefreshCw size={10} />
-             Conversión auto. al T.C. del sistema.
-           </div>
-           {conversionInfo && (
-             <div className="text-xs text-indigo-600 font-semibold bg-indigo-50 px-2 py-0.5 rounded animate-pulse-once">
-               {conversionInfo}
+         
+         {/* Info Conversión */}
+         {conversionInfo && (
+             <div className="mt-3 text-xs text-indigo-600 font-semibold bg-indigo-50 px-3 py-2 rounded border border-indigo-100 flex items-center gap-2">
+               <RefreshCw size={12} /> {conversionInfo}
              </div>
-           )}
-         </div>
+         )}
       </div>
 
-      {/* --- SECTION 3: ITEM LIST & COMMENTS --- */}
+      {/* --- SECTION 3: ITEM LIST (CARD VIEW MOBILE / TABLE DESKTOP) --- */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 min-h-[200px] flex flex-col overflow-hidden">
-         {/* Table Header (Hidden on small mobile, shown on md+) */}
+         
+         {/* Desktop Header */}
          <div className="hidden md:grid grid-cols-12 bg-gray-50 p-3 text-xs font-bold text-gray-500 uppercase border-b border-gray-200">
             <div className="col-span-5">Descripción / Producto</div>
             <div className="col-span-1 text-center">Cant</div>
@@ -476,30 +479,52 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
             <div className="col-span-1 text-center"></div>
          </div>
 
-         {/* Table Body - Scrollable on mobile */}
-         <div className="flex-1 overflow-x-auto">
+         {/* Body */}
+         <div className="flex-1">
            {items.length === 0 ? (
-             <div className="flex flex-col items-center justify-center h-40 text-gray-400">
-               <span className="text-sm">No existen registros para mostrar.</span>
+             <div className="flex flex-col items-center justify-center h-40 text-gray-400 bg-gray-50/30">
+               <span className="text-sm">Agregue productos para comenzar.</span>
              </div>
            ) : (
-             <div className="min-w-[600px] md:min-w-0">
+             <div className="divide-y divide-gray-100">
                 {items.map((item, idx) => (
-                  <div key={idx} className="grid grid-cols-12 p-3 text-sm border-b border-gray-100 hover:bg-indigo-50/30 transition-colors items-center group">
-                      <div className="col-span-5">
-                        <div className="font-semibold text-gray-800">{item.productName}</div>
-                        {item.description && item.description !== item.productName && (
-                          <div className="text-xs text-gray-500 truncate">{item.description}</div>
-                        )}
+                  <div key={idx} className="group hover:bg-indigo-50/30 transition-colors">
+                      {/* Desktop Row Layout */}
+                      <div className="hidden md:grid grid-cols-12 p-3 text-sm items-center">
+                          <div className="col-span-5">
+                            <div className="font-semibold text-gray-800">{item.productName}</div>
+                            {item.description && item.description !== item.productName && (
+                              <div className="text-xs text-gray-500 truncate">{item.description}</div>
+                            )}
+                          </div>
+                          <div className="col-span-1 text-center text-gray-700">{item.quantity}</div>
+                          <div className="col-span-2 text-right text-gray-700">{getCurrencySymbol()} {item.price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                          <div className="col-span-1 text-center text-gray-500">{item.discount > 0 ? `${item.discount}%` : '-'}</div>
+                          <div className="col-span-2 text-right font-bold text-gray-900">{getCurrencySymbol()} {item.total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                          <div className="col-span-1 text-center">
+                            <button onClick={() => handleRemoveItem(idx)} className="text-gray-400 hover:text-red-500 transition-colors p-1">
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                       </div>
-                      <div className="col-span-1 text-center text-gray-700">{item.quantity}</div>
-                      <div className="col-span-2 text-right text-gray-700">{getCurrencySymbol()} {item.price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                      <div className="col-span-1 text-center text-gray-500">{item.discount > 0 ? `${item.discount}%` : '-'}</div>
-                      <div className="col-span-2 text-right font-bold text-gray-900">{getCurrencySymbol()} {item.total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                      <div className="col-span-1 text-center">
-                        <button onClick={() => handleRemoveItem(idx)} className="text-gray-400 hover:text-red-500 transition-colors p-1">
-                          <Trash2 size={16} />
-                        </button>
+
+                      {/* Mobile Card Layout */}
+                      <div className="md:hidden p-4 flex justify-between items-start">
+                         <div className="flex-1">
+                            <div className="font-bold text-gray-800 text-sm mb-1">{item.productName}</div>
+                            <div className="text-xs text-gray-500 mb-2">
+                               {item.quantity} x {getCurrencySymbol()}{item.price.toLocaleString('en-US')} 
+                               {item.discount > 0 && <span className="text-green-600 ml-1">(-{item.discount}%)</span>}
+                            </div>
+                         </div>
+                         <div className="text-right flex flex-col items-end gap-2">
+                             <div className="font-bold text-gray-900 text-sm">
+                                {getCurrencySymbol()} {item.total.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                             </div>
+                             <button onClick={() => handleRemoveItem(idx)} className="text-red-400 bg-red-50 p-1.5 rounded-lg">
+                                <Trash2 size={16} />
+                             </button>
+                         </div>
                       </div>
                   </div>
                 ))}
@@ -509,11 +534,11 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
          
          {/* Comments Area */}
          <div className="p-4 border-t border-gray-200 bg-gray-50/50">
-           <label className="block text-xs font-bold text-gray-500 mb-1">Comentarios / Notas Adicionales:</label>
+           <label className="block text-xs font-bold text-gray-500 mb-1">Comentarios</label>
            <textarea 
              rows={2} 
              className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none resize-none bg-white"
-             placeholder="Instrucciones de entrega, notas de garantía, etc..."
+             placeholder="Notas internas o para el cliente..."
              value={notes}
              onChange={e => setNotes(e.target.value)}
            />
@@ -523,16 +548,44 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
       {/* --- SECTION 4: FOOTER / TOTALS --- */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 xl:gap-8">
         
-        {/* Left Footer: Payment & Ref */}
+        {/* Right Footer: Totals (Shown first on mobile for visibility) */}
+        <div className="bg-gray-50 p-5 md:p-6 rounded-xl border border-gray-200 shadow-inner h-fit order-1 xl:order-2">
+           <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                 <span className="text-sm font-medium text-gray-500">Sub Total</span>
+                 <span className="font-mono text-gray-700 text-sm font-semibold">
+                   {getCurrencySymbol()} {subtotal.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                 </span>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                 <span className="text-sm font-medium text-gray-500">IVA ({settings.taxRate}%)</span>
+                 <span className="font-mono text-gray-700 text-sm font-semibold">
+                   {getCurrencySymbol()} {tax.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                 </span>
+              </div>
+
+              <div className="h-px bg-gray-300 my-2"></div>
+
+              <div className="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200">
+                 <span className="text-lg font-bold text-gray-900">TOTAL</span>
+                 <div className="font-mono font-bold text-xl text-indigo-700">
+                   {getCurrencySymbol()} {total.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                 </div>
+              </div>
+           </div>
+        </div>
+
+        {/* Left Footer: Payment & Actions */}
         <div className="space-y-6 order-2 xl:order-1">
            <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
               <h3 className="font-bold text-gray-800 text-sm uppercase flex items-center gap-2 border-b pb-2 border-gray-100">
-                <CreditCard size={16} /> Forma de Pago
+                <CreditCard size={16} /> Pago
               </h3>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                  <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-1">Tipo Pago</label>
+                    <label className="block text-xs font-bold text-gray-500 mb-1">Método</label>
                     <select 
                       className="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
                       value={paymentMethod}
@@ -541,91 +594,41 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                       <option value="Efectivo">Efectivo</option>
                       <option value="Tarjeta">Tarjeta</option>
                       <option value="Transferencia">Transferencia</option>
-                      <option value="Cheque">Cheque</option>
                       <option value="Sinpe Movil">Sinpe Móvil</option>
-                      <option value="Otros">Otros</option>
-                      <option value="">No Especificado</option>
                     </select>
                  </div>
                  <div>
-                   <label className="block text-xs font-bold text-gray-500 mb-1">Monto Cancelación</label>
+                   <label className="block text-xs font-bold text-gray-500 mb-1">Monto Recibido</label>
                    <div className="relative">
                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">{getCurrencySymbol()}</span>
                      <input 
                         type="number" 
                         step="0.01"
                         className="w-full pl-8 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" 
-                        placeholder="0.00" 
                         value={paymentAmount || ''}
                         onChange={e => setPaymentAmount(parseFloat(e.target.value))}
                       />
                    </div>
                  </div>
               </div>
-              
-              <div>
-                 <label className="block text-xs font-bold text-gray-500 mb-1">No. Referencia / Orden Compra</label>
-                 <input 
-                   type="text" 
-                   className="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none" 
-                   value={reference}
-                   onChange={e => setReference(e.target.value)}
-                   placeholder="Ej. OC-5555"
-                 />
-              </div>
            </div>
            
-           <div className="flex flex-col sm:flex-row gap-3">
-             <button 
-               onClick={handleSubmit}
-               className="flex-1 bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-slate-300 hover:bg-slate-800 transition-all flex justify-center items-center gap-2 active:scale-95"
-             >
-               <CheckCircle2 size={20} /> PROCESAR FACTURA
-             </button>
+           <div className="flex flex-col-reverse sm:flex-row gap-3">
              <button 
                onClick={() => navigate('/invoices')}
-               className="flex-1 bg-white text-gray-700 border border-gray-300 py-3.5 rounded-xl font-bold hover:bg-gray-50 transition-all flex justify-center items-center gap-2 active:scale-95"
+               className="flex-1 bg-white text-gray-700 border border-gray-300 py-3.5 rounded-xl font-bold hover:bg-gray-50 transition-all flex justify-center items-center gap-2 active:scale-95 text-sm"
              >
-               <X size={20} /> CANCELAR
+               <X size={18} /> Cancelar
+             </button>
+             <button 
+               onClick={handleSubmit}
+               className="flex-1 bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-slate-300 hover:bg-slate-800 transition-all flex justify-center items-center gap-2 active:scale-95 text-sm"
+             >
+               <CheckCircle2 size={18} /> FACTURAR
              </button>
            </div>
         </div>
 
-        {/* Right Footer: Totals */}
-        <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-inner h-fit order-1 xl:order-2">
-           <div className="space-y-3">
-              {/* Rows */}
-              <div className="flex justify-between items-center">
-                 <span className="text-sm font-bold text-gray-600">Sub Total</span>
-                 <div className="w-32 sm:w-40 bg-white border border-gray-300 rounded px-3 py-1.5 text-right font-mono text-gray-800 text-sm">
-                   {getCurrencySymbol()} {subtotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                 </div>
-              </div>
-              
-              <div className="flex justify-between items-center">
-                 <span className="text-sm font-medium text-gray-500">IVA ({settings.taxRate}%)</span>
-                 <div className="w-32 sm:w-40 bg-white border border-gray-300 rounded px-3 py-1.5 text-right font-mono text-gray-600 text-sm">
-                   {getCurrencySymbol()} {tax.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                 </div>
-              </div>
-
-              <div className="flex justify-between items-center">
-                 <span className="text-sm font-medium text-gray-500">Exonerado</span>
-                 <div className="w-32 sm:w-40 bg-gray-100 border border-gray-200 rounded px-3 py-1.5 text-right font-mono text-gray-400 text-sm">
-                   {getCurrencySymbol()} 0.00
-                 </div>
-              </div>
-
-              <div className="h-px bg-gray-300 my-2"></div>
-
-              <div className="flex justify-between items-center">
-                 <span className="text-xl font-bold text-gray-900">TOTAL</span>
-                 <div className="w-32 sm:w-40 bg-indigo-50 border border-indigo-200 rounded px-3 py-2 text-right font-mono font-bold text-xl text-indigo-700">
-                   {getCurrencySymbol()} {total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                 </div>
-              </div>
-           </div>
-        </div>
       </div>
 
     </div>

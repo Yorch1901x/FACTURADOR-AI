@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Package, Users, Settings as SettingsIcon, Menu, LogOut, X, PieChart, Receipt, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, FileText, Package, Users, Settings as SettingsIcon, Menu, LogOut, X, PieChart, Receipt, ChevronLeft, ChevronRight, Cloud, WifiOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { isFirebaseInitialized } from '../services/firebase';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -53,27 +54,27 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden relative isolate">
-      {/* Mobile Overlay - Z-Index 40 to be above everything except modals */}
+      {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 bg-slate-900/60 z-40 backdrop-blur-sm transition-opacity"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar - Z-Index 50 to be top level */}
+      {/* Sidebar */}
       <aside 
         className={`
           fixed lg:static inset-y-0 left-0 z-50
-          bg-slate-900 text-white transition-all duration-300 ease-in-out flex flex-col shadow-2xl
-          ${sidebarOpen ? 'w-64 translate-x-0' : 'w-0 lg:w-20 -translate-x-full lg:translate-x-0'}
+          bg-slate-900 text-white transition-all duration-300 ease-in-out flex flex-col
+          ${sidebarOpen ? 'w-64 translate-x-0 shadow-2xl' : 'w-64 -translate-x-full shadow-none lg:w-20 lg:translate-x-0 lg:shadow-2xl'}
         `}
       >
         {/* Sidebar Header */}
         <div className={`p-4 flex items-center border-b border-slate-800 h-20 transition-all ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
           {sidebarOpen ? (
              <div className="flex items-center gap-2 overflow-hidden">
-                <div className="h-8 w-8 bg-gradient-to-br from-indigo-500 to-cyan-500 rounded-lg flex items-center justify-center text-white font-bold shadow-lg">
+                <div className="h-8 w-8 bg-gradient-to-br from-indigo-500 to-cyan-500 rounded-lg flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0">
                   F
                 </div>
                 <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400 whitespace-nowrap">
@@ -102,7 +103,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
           {/* Botón Cerrar (Mobile) */}
           {isMobile && (
-            <button onClick={() => setSidebarOpen(false)} className="text-slate-400 hover:text-white p-1">
+            <button onClick={() => setSidebarOpen(false)} className="text-slate-400 hover:text-white p-1 bg-slate-800 rounded-lg">
               <X size={24} />
             </button>
           )}
@@ -116,7 +117,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                title={!sidebarOpen ? item.label : ''}
+                title={!sidebarOpen && isMobile ? item.label : ''} 
                 className={`
                   flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 whitespace-nowrap group
                   ${isActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}
@@ -124,10 +125,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   ${!sidebarOpen ? 'justify-center' : ''}
                 `}
               >
-                <div className="relative flex items-center justify-center">
+                <div className="relative flex items-center justify-center flex-shrink-0">
                    <item.icon size={22} className={`min-w-[22px] ${isActive ? 'animate-pulse-once' : ''}`} />
-                   {/* Tooltip flotante cuando está colapsado */}
-                   {!sidebarOpen && (
+                   {/* Tooltip flotante (Solo Desktop) */}
+                   {!sidebarOpen && !isMobile && (
                      <div className="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-xl border border-slate-700">
                        {item.label}
                      </div>
@@ -143,7 +144,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </nav>
 
         {/* Footer / User */}
-        <div className="p-4 border-t border-slate-800">
+        <div className="p-4 border-t border-slate-800 bg-slate-900">
+          {/* Connection Status Indicator */}
+           {sidebarOpen && (
+            <div className={`mb-4 px-3 py-2 rounded-lg flex items-center gap-2 text-xs font-semibold border ${isFirebaseInitialized ? 'bg-green-900/20 text-green-400 border-green-900/50' : 'bg-amber-900/20 text-amber-400 border-amber-900/50'}`}>
+              {isFirebaseInitialized ? <Cloud size={14} /> : <WifiOff size={14} />}
+              <span>{isFirebaseInitialized ? 'Modo Nube (Firebase)' : 'Modo Local (Demo)'}</span>
+            </div>
+          )}
+
           <button 
             onClick={logout}
             className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-red-400 hover:bg-slate-800 hover:text-red-300 transition-all whitespace-nowrap group ${!sidebarOpen ? 'justify-center' : ''}`}
@@ -157,7 +166,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           
           {sidebarOpen && (
             <div className="mt-4 flex items-center gap-3 px-2">
-              <div className="h-8 w-8 rounded-full bg-indigo-900/50 border border-indigo-500/30 flex items-center justify-center text-indigo-200 text-xs font-bold">
+              <div className="h-8 w-8 rounded-full bg-indigo-900/50 border border-indigo-500/30 flex items-center justify-center text-indigo-200 text-xs font-bold flex-shrink-0">
                 {user?.email?.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 overflow-hidden">
@@ -172,13 +181,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden relative w-full min-w-0 transition-all duration-300">
         {/* Top Mobile Header */}
-        <header className="lg:hidden bg-white border-b border-gray-200 p-4 flex items-center justify-between shadow-sm z-30 relative">
+        <header className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm z-30 relative h-16">
              <div className="flex items-center gap-3">
-                <button onClick={() => setSidebarOpen(true)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-700">
+                <button onClick={() => setSidebarOpen(true)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-700 active:bg-gray-200">
                   <Menu size={24}/>
                 </button>
                 <div className="flex items-center gap-2">
-                  <div className="h-6 w-6 bg-indigo-600 rounded flex items-center justify-center text-white text-xs font-bold">FA</div>
+                  <div className="h-7 w-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-md">FA</div>
                   <span className="font-bold text-gray-800 text-lg">Facturador AI</span>
                 </div>
              </div>
@@ -187,8 +196,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
              </div>
         </header>
 
-        <div className="flex-1 overflow-auto p-4 lg:p-8 scroll-smooth bg-slate-50/50">
-          <div className="max-w-[1920px] mx-auto pb-20 lg:pb-0">
+        {/* Content Area */}
+        <div className="flex-1 overflow-x-hidden overflow-y-auto p-4 lg:p-8 scroll-smooth bg-slate-50/50">
+          <div className="max-w-[1920px] mx-auto">
             {children}
           </div>
         </div>
