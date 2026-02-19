@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Product, Customer, Invoice, InvoiceItem, AppSettings } from '../types';
@@ -238,29 +237,29 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
     return (
       <div className="animate-fade-in flex flex-col h-[calc(100vh-100px)]">
         {/* Actions Bar (No Print) */}
-        <div className="no-print bg-white p-4 rounded-xl shadow-sm border border-green-100 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
-           <div className="flex items-center gap-3 text-green-700">
-             <div className="p-2 bg-green-100 rounded-full"><FileCheck size={24} /></div>
+        <div className="no-print bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+           <div className="flex items-center gap-3 text-black">
+             <div className="p-2 bg-gray-100 rounded-full border border-gray-200"><FileCheck size={24} /></div>
              <div>
                <h2 className="font-bold text-lg">¡Factura Procesada Correctamente!</h2>
-               <p className="text-xs text-green-600">Documento electrónico generado. Costo de venta registrado.</p>
+               <p className="text-xs text-gray-500">Documento electrónico generado. Costo de venta registrado.</p>
              </div>
            </div>
            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
               <button onClick={() => navigate('/invoices')} className="flex-1 md:flex-none px-4 py-2 text-gray-600 hover:bg-gray-50 border border-gray-200 rounded-lg font-medium transition-colors text-sm">
                 Historial
               </button>
-              <button onClick={handleNewInvoice} className="flex-1 md:flex-none px-4 py-2 text-indigo-600 hover:bg-indigo-50 border border-indigo-200 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm">
+              <button onClick={handleNewInvoice} className="flex-1 md:flex-none px-4 py-2 text-black hover:bg-gray-50 border border-black rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm">
                 <Plus size={16} /> Nueva
               </button>
-              <button onClick={handlePrint} className="flex-1 md:flex-none px-6 py-2 bg-slate-900 text-white hover:bg-slate-800 rounded-lg font-bold shadow-lg shadow-slate-200 transition-all flex items-center justify-center gap-2 active:scale-95">
+              <button onClick={handlePrint} className="flex-1 md:flex-none px-6 py-2 bg-black text-white hover:bg-gray-800 rounded-lg font-bold shadow-lg shadow-gray-200 transition-all flex items-center justify-center gap-2 active:scale-95 border border-black">
                 <Printer size={18} /> IMPRIMIR
               </button>
            </div>
         </div>
 
         {/* Printable Area Preview */}
-        <div className="flex-1 overflow-auto bg-gray-500/10 p-2 md:p-8 rounded-xl border border-gray-200 shadow-inner flex justify-center">
+        <div className="flex-1 overflow-auto bg-gray-100 p-2 md:p-8 rounded-xl border border-gray-200 shadow-inner flex justify-center">
            <div className="bg-white shadow-2xl scale-[0.6] sm:scale-90 origin-top md:scale-100 transition-transform w-full max-w-[210mm]">
               <InvoicePrint invoice={createdInvoice} settings={settings} customer={currentCustomer} />
            </div>
@@ -278,11 +277,11 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
            <p className="text-sm text-gray-500">Ingrese los detalles de la venta</p>
         </div>
         <div className="flex justify-between sm:flex-col items-center sm:items-end gap-2">
-           <div className="bg-indigo-50 p-2 rounded-lg sm:bg-transparent sm:p-0 text-right">
+           <div className="bg-gray-50 p-2 rounded-lg sm:bg-transparent sm:p-0 text-right">
             <div className="text-xs text-gray-500 font-mono uppercase hidden md:block">Fecha Actual</div>
             <div className="font-bold text-gray-800 text-sm">{new Date().toLocaleDateString()}</div>
           </div>
-          <div className="text-xs text-indigo-600 font-medium flex items-center gap-1 bg-indigo-50 px-2 py-0.5 rounded">
+          <div className="text-xs text-black font-medium flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">
             <RefreshCw size={10} /> T.C. ₡{settings.exchangeRate || 520}
           </div>
         </div>
@@ -296,7 +295,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
              <div className="relative">
                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                <select 
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm appearance-none"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none transition-all text-sm appearance-none"
                   value={customerId}
                   onChange={(e) => setCustomerId(e.target.value)}
                >
@@ -313,7 +312,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                  <div className="relative">
                    <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
                    <select 
-                      className="w-full pl-9 pr-3 py-2.5 bg-indigo-50 border border-indigo-100 text-indigo-900 font-semibold rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                      className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 text-black font-semibold rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm"
                       value={currency}
                       onChange={e => {
                         // If items exist, warn. If empty, just change.
@@ -335,7 +334,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                <div>
                  <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Condición</label>
                  <select 
-                    className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                    className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm"
                     value={saleCondition}
                     onChange={e => setSaleCondition(e.target.value)}
                  >
@@ -353,7 +352,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                   type="date" 
                   value={date} 
                   onChange={e => setDate(e.target.value)} 
-                  className="w-full pl-9 md:pl-3 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                  className="w-full pl-9 md:pl-3 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm"
                 />
              </div>
            </div>
@@ -361,27 +360,27 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
       </div>
 
       {/* --- SECTION 2: ITEM ENTRY ROW (STACKED ON MOBILE) --- */}
-      <div className="bg-slate-50 p-4 md:p-5 rounded-xl border border-slate-200 shadow-inner">
+      <div className="bg-gray-50 p-4 md:p-5 rounded-xl border border-gray-200 shadow-inner">
          {/* Flex col on mobile, row on xl */}
          <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-end">
             
             {/* Radio Type - Horizontal on mobile */}
-            <div className="flex items-center gap-4 pb-0 xl:pb-2 w-full xl:w-auto justify-start xl:h-[66px] xl:items-end border-b xl:border-0 border-slate-200 mb-2 xl:mb-0">
+            <div className="flex items-center gap-4 pb-0 xl:pb-2 w-full xl:w-auto justify-start xl:h-[66px] xl:items-end border-b xl:border-0 border-gray-200 mb-2 xl:mb-0">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="type" className="text-indigo-600 w-4 h-4" checked={!isService} onChange={() => setIsService(false)} />
-                <span className="text-sm font-medium text-slate-700">Producto</span>
+                <input type="radio" name="type" className="text-black w-4 h-4 accent-black" checked={!isService} onChange={() => setIsService(false)} />
+                <span className="text-sm font-medium text-gray-700">Producto</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="type" className="text-indigo-600 w-4 h-4" checked={isService} onChange={() => setIsService(true)} />
-                <span className="text-sm font-medium text-slate-700">Servicio</span>
+                <input type="radio" name="type" className="text-black w-4 h-4 accent-black" checked={isService} onChange={() => setIsService(true)} />
+                <span className="text-sm font-medium text-gray-700">Servicio</span>
               </label>
             </div>
 
             {/* Product Select - Full width mobile */}
             <div className="w-full xl:flex-grow xl:min-w-[280px]">
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Producto / Servicio</label>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Producto / Servicio</label>
               <select 
-                className="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm"
                 value={selectedProductId}
                 onChange={(e) => handleProductSelect(e.target.value)}
               >
@@ -397,12 +396,12 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
             <div className="grid grid-cols-3 xl:flex gap-3 w-full xl:w-auto">
                 {/* Unit Price */}
                  <div className="col-span-3 sm:col-span-1 xl:w-28">
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Precio</label>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Precio</label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-semibold text-xs">{getCurrencySymbol()}</span>
                     <input 
                       type="number" min="0" step="0.01"
-                      className="w-full pl-7 pr-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-semibold text-slate-700"
+                      className="w-full pl-7 pr-3 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm font-semibold text-gray-700"
                       value={unitPrice}
                       onChange={e => setUnitPrice(parseFloat(e.target.value))}
                       placeholder="0.00"
@@ -412,21 +411,21 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
 
                 {/* Qty */}
                 <div className="col-span-1 xl:w-20">
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Cant.</label>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Cant.</label>
                   <input 
                     type="number" min="1" 
-                    className="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm text-center"
+                    className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm text-center"
                     value={qty}
                     onChange={e => setQty(Number(e.target.value))}
                   />
                 </div>
                  {/* Discount */}
                 <div className="col-span-2 sm:col-span-1 xl:w-24">
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">% Desc.</label>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">% Desc.</label>
                   <div className="relative">
                     <input 
                       type="number" min="0" max="100"
-                      className="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm pr-6"
+                      className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm pr-6"
                       value={itemDiscount}
                       onChange={e => setItemDiscount(Number(e.target.value))}
                     />
@@ -437,10 +436,10 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
 
             {/* Detail - Full width mobile */}
             <div className="w-full xl:flex-grow xl:min-w-[200px]">
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Detalle (Opcional)</label>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Detalle (Opcional)</label>
               <input 
                 type="text" 
-                className="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm"
                 value={itemDescription}
                 onChange={e => setItemDescription(e.target.value)}
                 placeholder="Descripción adicional..."
@@ -451,7 +450,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
             <div className="w-full xl:w-auto mt-2 xl:mt-0">
               <button 
                 onClick={handleAddItem}
-                className="w-full xl:w-auto bg-indigo-700 text-white px-6 py-2.5 rounded-lg hover:bg-indigo-800 shadow-md transition-all flex items-center justify-center gap-2 text-sm font-bold active:scale-95 h-[42px]"
+                className="w-full xl:w-auto bg-black text-white px-6 py-2.5 rounded-lg hover:bg-gray-800 shadow-md transition-all flex items-center justify-center gap-2 text-sm font-bold active:scale-95 h-[42px] border border-black"
               >
                 <Plus size={16} /> <span className="xl:hidden">Agregar Ítem</span><span className="hidden xl:inline">Agregar</span>
               </button>
@@ -460,7 +459,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
          
          {/* Info Conversión */}
          {conversionInfo && (
-             <div className="mt-3 text-xs text-indigo-600 font-semibold bg-indigo-50 px-3 py-2 rounded border border-indigo-100 flex items-center gap-2">
+             <div className="mt-3 text-xs text-black font-semibold bg-gray-100 px-3 py-2 rounded border border-gray-200 flex items-center gap-2">
                <RefreshCw size={12} /> {conversionInfo}
              </div>
          )}
@@ -488,7 +487,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
            ) : (
              <div className="divide-y divide-gray-100">
                 {items.map((item, idx) => (
-                  <div key={idx} className="group hover:bg-indigo-50/30 transition-colors">
+                  <div key={idx} className="group hover:bg-gray-50 transition-colors">
                       {/* Desktop Row Layout */}
                       <div className="hidden md:grid grid-cols-12 p-3 text-sm items-center">
                           <div className="col-span-5">
@@ -502,7 +501,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                           <div className="col-span-1 text-center text-gray-500">{item.discount > 0 ? `${item.discount}%` : '-'}</div>
                           <div className="col-span-2 text-right font-bold text-gray-900">{getCurrencySymbol()} {item.total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                           <div className="col-span-1 text-center">
-                            <button onClick={() => handleRemoveItem(idx)} className="text-gray-400 hover:text-red-500 transition-colors p-1">
+                            <button onClick={() => handleRemoveItem(idx)} className="text-gray-400 hover:text-red-600 transition-colors p-1">
                               <Trash2 size={16} />
                             </button>
                           </div>
@@ -514,14 +513,14 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                             <div className="font-bold text-gray-800 text-sm mb-1">{item.productName}</div>
                             <div className="text-xs text-gray-500 mb-2">
                                {item.quantity} x {getCurrencySymbol()}{item.price.toLocaleString('en-US')} 
-                               {item.discount > 0 && <span className="text-green-600 ml-1">(-{item.discount}%)</span>}
+                               {item.discount > 0 && <span className="text-gray-900 ml-1">(-{item.discount}%)</span>}
                             </div>
                          </div>
                          <div className="text-right flex flex-col items-end gap-2">
                              <div className="font-bold text-gray-900 text-sm">
                                 {getCurrencySymbol()} {item.total.toLocaleString('en-US', {minimumFractionDigits: 2})}
                              </div>
-                             <button onClick={() => handleRemoveItem(idx)} className="text-red-400 bg-red-50 p-1.5 rounded-lg">
+                             <button onClick={() => handleRemoveItem(idx)} className="text-gray-400 bg-gray-50 p-1.5 rounded-lg border border-gray-200">
                                 <Trash2 size={16} />
                              </button>
                          </div>
@@ -537,7 +536,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
            <label className="block text-xs font-bold text-gray-500 mb-1">Comentarios</label>
            <textarea 
              rows={2} 
-             className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none resize-none bg-white"
+             className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-black focus:border-black outline-none resize-none bg-white"
              placeholder="Notas internas o para el cliente..."
              value={notes}
              onChange={e => setNotes(e.target.value)}
@@ -569,7 +568,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
 
               <div className="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200">
                  <span className="text-lg font-bold text-gray-900">TOTAL</span>
-                 <div className="font-mono font-bold text-xl text-indigo-700">
+                 <div className="font-mono font-bold text-xl text-black">
                    {getCurrencySymbol()} {total.toLocaleString('en-US', {minimumFractionDigits: 2})}
                  </div>
               </div>
@@ -587,7 +586,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                  <div>
                     <label className="block text-xs font-bold text-gray-500 mb-1">Método</label>
                     <select 
-                      className="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                      className="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-black focus:border-black bg-white"
                       value={paymentMethod}
                       onChange={e => setPaymentMethod(e.target.value)}
                     >
@@ -604,7 +603,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                      <input 
                         type="number" 
                         step="0.01"
-                        className="w-full pl-8 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" 
+                        className="w-full pl-8 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-black focus:border-black" 
                         value={paymentAmount || ''}
                         onChange={e => setPaymentAmount(parseFloat(e.target.value))}
                       />
@@ -622,7 +621,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
              </button>
              <button 
                onClick={handleSubmit}
-               className="flex-1 bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-slate-300 hover:bg-slate-800 transition-all flex justify-center items-center gap-2 active:scale-95 text-sm"
+               className="flex-1 bg-black text-white py-3.5 rounded-xl font-bold shadow-lg shadow-gray-300 hover:bg-gray-800 transition-all flex justify-center items-center gap-2 active:scale-95 text-sm border border-black"
              >
                <CheckCircle2 size={18} /> FACTURAR
              </button>

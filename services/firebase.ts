@@ -4,45 +4,39 @@ import { getAnalytics } from "firebase/analytics";
 import { getFirestore, Firestore } from "firebase/firestore";
 import { getAuth, Auth } from "firebase/auth";
 
-// Configuración específica del proyecto
+// Configuración cargada desde import.meta.env (estándar de Vite)
+// Using bracket notation to avoid TypeScript "Property 'env' does not exist on type 'ImportMeta'" errors
 const firebaseConfig = {
-  apiKey: "AIzaSyANHrj6TVTf_OCslCyJqvzPXXAA3shTmsg",
-  authDomain: "gestor-de-gasto-mobile.firebaseapp.com",
-  projectId: "gestor-de-gasto-mobile",
-  storageBucket: "gestor-de-gasto-mobile.firebasestorage.app",
-  messagingSenderId: "979775122403",
-  appId: "1:979775122403:web:edbc96fcf6a2f1db184ed6",
-  measurementId: "G-06BKNCTLWJ"
+  apiKey: (import.meta as any).env?.VITE_FIREBASE_API_KEY,
+  authDomain: (import.meta as any).env?.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: (import.meta as any).env?.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: (import.meta as any).env?.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: (import.meta as any).env?.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: (import.meta as any).env?.VITE_FIREBASE_APP_ID,
+  measurementId: (import.meta as any).env?.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 let app = null;
-let analytics = null;
 let db: Firestore | null = null;
 let auth: Auth | null = null;
 
-try {
-  app = initializeApp(firebaseConfig);
-  
-  // Only initialize analytics in browser environment
-  if (typeof window !== 'undefined') {
-    try {
-        analytics = getAnalytics(app);
-    } catch (e) {
-        console.warn("Analytics initialization skipped (likely due to environment block)", e);
+// Intentar inicializar solo si la configuración mínima existe
+if (firebaseConfig.apiKey && firebaseConfig.projectId) {
+  try {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+    
+    if (typeof window !== 'undefined' && firebaseConfig.measurementId) {
+      getAnalytics(app);
     }
+    console.log("✅ Firebase configurado correctamente.");
+  } catch (error) {
+    console.error("❌ Error en Firebase config:", error);
   }
-  
-  db = getFirestore(app);
-  auth = getAuth(app);
-  console.log("✅ Firebase connected successfully to:", firebaseConfig.projectId);
-} catch (error) {
-  console.error("❌ Firebase initialization error:", error);
-  // Fallback to null to trigger offline mode in services if connection fails completely
-  db = null;
-  auth = null;
+} else {
+  console.warn("⚠️ Firebase no configurado. Usando almacenamiento local (LocalStorage).");
 }
 
-// Export initialization status for UI indicators
 export const isFirebaseInitialized = !!app;
-
-export { app, analytics, db, auth };
+export { app, db, auth };

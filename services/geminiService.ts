@@ -1,9 +1,6 @@
+
 import { GoogleGenAI } from "@google/genai";
 import { Product, Invoice } from "../types";
-
-// Initialize Gemini
-const apiKey = process.env.API_KEY || ''; 
-const ai = new GoogleGenAI({ apiKey });
 
 export const GeminiService = {
   /**
@@ -11,11 +8,11 @@ export const GeminiService = {
    */
   generateProductDescription: async (name: string, category: string): Promise<string> => {
     try {
-      const model = 'gemini-2.5-flash';
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const prompt = `Escribe una descripción corta, atractiva y profesional para un producto llamado "${name}" que pertenece a la categoría "${category}". Máximo 2 frases. En español.`;
       
       const response = await ai.models.generateContent({
-        model,
+        model: 'gemini-3-flash-preview',
         contents: prompt,
       });
       
@@ -31,9 +28,8 @@ export const GeminiService = {
    */
   analyzeBusinessData: async (invoices: Invoice[], products: Product[]): Promise<string> => {
     try {
-      const model = 'gemini-2.5-flash';
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       
-      // Prepare a summary of data to save tokens
       const totalSales = invoices.reduce((acc, inv) => acc + inv.total, 0);
       const salesCount = invoices.length;
       const lowStockProducts = products.filter(p => p.stock < 5).map(p => p.name);
@@ -53,7 +49,7 @@ export const GeminiService = {
       `;
 
       const response = await ai.models.generateContent({
-        model,
+        model: 'gemini-3-pro-preview',
         contents: prompt,
       });
 

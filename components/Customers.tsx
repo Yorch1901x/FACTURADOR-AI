@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Customer } from '../types';
 import { Plus, Mail, Phone, MapPin, X, User, Building2, Globe, FileText, Search, Loader2, Wand2 } from 'lucide-react';
@@ -78,7 +77,7 @@ const Customers: React.FC<CustomersProps> = ({ customers, onAddCustomer }) => {
         </div>
         <button 
           onClick={() => setIsModalOpen(true)} 
-          className="bg-slate-900 text-white px-5 py-2.5 rounded-xl hover:bg-slate-800 flex items-center gap-2 shadow-lg shadow-slate-200 transition-all active:scale-95"
+          className="bg-black text-white px-5 py-2.5 rounded-xl hover:bg-gray-800 flex items-center gap-2 shadow-lg shadow-gray-200 transition-all active:scale-95 border border-black"
         >
           <Plus size={20} /> Nuevo Cliente
         </button>
@@ -92,22 +91,22 @@ const Customers: React.FC<CustomersProps> = ({ customers, onAddCustomer }) => {
             placeholder="Buscar por nombre o cédula..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none bg-white"
          />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredCustomers.map(c => (
-          <div key={c.id} className="group bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg hover:border-indigo-100 transition-all duration-300 overflow-hidden relative">
-            <div className="h-2 bg-gradient-to-r from-indigo-500 to-purple-500 w-full"></div>
+          <div key={c.id} className="group bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-gray-300 transition-all duration-300 overflow-hidden relative">
+            <div className="h-2 bg-black w-full"></div>
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
-                <div className="w-14 h-14 bg-gradient-to-br from-indigo-50 to-slate-100 rounded-2xl flex items-center justify-center text-indigo-600 font-bold text-xl shadow-inner">
+                <div className="w-14 h-14 bg-gray-50 border border-gray-100 rounded-2xl flex items-center justify-center text-black font-bold text-xl shadow-inner">
                   {c.name ? c.name.charAt(0).toUpperCase() : '?'}
                 </div>
                 <div className="text-right">
-                  <div className="bg-indigo-50 px-2 py-1 rounded-lg border border-indigo-100 inline-block mb-1">
-                    <span className="text-[10px] font-bold uppercase text-indigo-700 tracking-wide">
+                  <div className="bg-white px-2 py-1 rounded-lg border border-gray-200 inline-block mb-1">
+                    <span className="text-[10px] font-bold uppercase text-gray-800 tracking-wide">
                        {(c.identificationType || '01').split(' ')[0]}
                     </span>
                   </div>
@@ -118,7 +117,7 @@ const Customers: React.FC<CustomersProps> = ({ customers, onAddCustomer }) => {
                 </div>
               </div>
               
-              <h3 className="text-lg font-bold text-gray-900 mb-0 group-hover:text-indigo-600 transition-colors line-clamp-1">{c.name}</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-0 group-hover:text-black transition-colors line-clamp-1">{c.name}</h3>
               {c.commercialName && <p className="text-sm text-gray-500 mb-1 line-clamp-1">{c.commercialName}</p>}
               
               <div className="space-y-2 mt-4 pt-4 border-t border-gray-50 text-sm text-gray-600">
@@ -146,9 +145,9 @@ const Customers: React.FC<CustomersProps> = ({ customers, onAddCustomer }) => {
 
       {/* Modal Completo para Factura Electrónica */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden animate-scale-in my-8 flex flex-col max-h-[90vh]">
-            <div className="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50/50">
+            <div className="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50">
               <div>
                 <h3 className="text-xl font-bold text-gray-900">Datos del Cliente</h3>
                 <p className="text-sm text-gray-500">Información requerida para Factura Electrónica</p>
@@ -161,7 +160,7 @@ const Customers: React.FC<CustomersProps> = ({ customers, onAddCustomer }) => {
               
               {/* Identificación */}
               <div>
-                <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <h4 className="text-xs font-bold text-black uppercase tracking-wider mb-4 flex items-center gap-2">
                   <User size={16} /> Identificación Fiscal
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -172,7 +171,7 @@ const Customers: React.FC<CustomersProps> = ({ customers, onAddCustomer }) => {
                         required 
                         value={formData.taxId} 
                         onChange={e => setFormData({...formData, taxId: e.target.value})} 
-                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" 
                         placeholder="Ej. 101110222 (Sin guiones)" 
                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearchTaxpayer())}
                       />
@@ -180,7 +179,7 @@ const Customers: React.FC<CustomersProps> = ({ customers, onAddCustomer }) => {
                         type="button"
                         onClick={handleSearchTaxpayer}
                         disabled={isSearchingId || !formData.taxId}
-                        className="px-4 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-colors disabled:opacity-50 flex items-center gap-2"
+                        className="px-4 bg-gray-50 text-black rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center gap-2"
                         title="Buscar en Hacienda"
                       >
                         {isSearchingId ? <Loader2 size={20} className="animate-spin" /> : <Search size={20} />}
@@ -195,7 +194,7 @@ const Customers: React.FC<CustomersProps> = ({ customers, onAddCustomer }) => {
                       required 
                       value={formData.identificationType} 
                       onChange={e => setFormData({...formData, identificationType: e.target.value})} 
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none bg-white"
                     >
                       <option value="01 Cédula Física">01 Cédula Física</option>
                       <option value="02 Cédula Jurídica">02 Cédula Jurídica</option>
@@ -206,18 +205,18 @@ const Customers: React.FC<CustomersProps> = ({ customers, onAddCustomer }) => {
 
                   <div className="space-y-1.5 md:col-span-2">
                     <label className="text-sm font-semibold text-gray-700">Razón Social (Nombre Legal)</label>
-                    <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Nombre completo registrado en Hacienda" />
+                    <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" placeholder="Nombre completo registrado en Hacienda" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-gray-700">Nombre Comercial</label>
-                    <input value={formData.commercialName} onChange={e => setFormData({...formData, commercialName: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Opcional" />
+                    <input value={formData.commercialName} onChange={e => setFormData({...formData, commercialName: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" placeholder="Opcional" />
                   </div>
                    <div className="space-y-1.5 md:col-span-3">
                     <label className="text-sm font-semibold text-gray-700">Actividad Económica</label>
                     <input 
                       value={formData.economicActivity} 
                       onChange={e => setFormData({...formData, economicActivity: e.target.value})} 
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all bg-gray-50" 
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all bg-gray-50" 
                       placeholder="Código y Descripción (Se llena automático)" 
                     />
                   </div>
@@ -228,29 +227,29 @@ const Customers: React.FC<CustomersProps> = ({ customers, onAddCustomer }) => {
 
               {/* Ubicación */}
               <div>
-                 <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-4 flex items-center gap-2">
+                 <h4 className="text-xs font-bold text-black uppercase tracking-wider mb-4 flex items-center gap-2">
                   <MapPin size={16} /> Dirección Fiscal
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                    <div className="space-y-1.5">
                       <label className="text-sm font-semibold text-gray-700">País</label>
-                      <input required value={formData.country} onChange={e => setFormData({...formData, country: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                      <input required value={formData.country} onChange={e => setFormData({...formData, country: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" />
                    </div>
                    <div className="space-y-1.5">
                       <label className="text-sm font-semibold text-gray-700">Provincia</label>
-                      <input required value={formData.province} onChange={e => setFormData({...formData, province: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Ej. San José" />
+                      <input required value={formData.province} onChange={e => setFormData({...formData, province: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" placeholder="Ej. San José" />
                    </div>
                    <div className="space-y-1.5">
                       <label className="text-sm font-semibold text-gray-700">Cantón</label>
-                      <input required value={formData.canton} onChange={e => setFormData({...formData, canton: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Ej. Central" />
+                      <input required value={formData.canton} onChange={e => setFormData({...formData, canton: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" placeholder="Ej. Central" />
                    </div>
                    <div className="space-y-1.5">
                       <label className="text-sm font-semibold text-gray-700">Distrito</label>
-                      <input required value={formData.district} onChange={e => setFormData({...formData, district: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Ej. Pavas" />
+                      <input required value={formData.district} onChange={e => setFormData({...formData, district: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" placeholder="Ej. Pavas" />
                    </div>
                    <div className="md:col-span-2 space-y-1.5">
                       <label className="text-sm font-semibold text-gray-700">Otras Señas / Dirección Exacta</label>
-                      <input required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Barrio, Calle, Número..." />
+                      <input required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" placeholder="Barrio, Calle, Número..." />
                    </div>
                 </div>
               </div>
@@ -259,17 +258,17 @@ const Customers: React.FC<CustomersProps> = ({ customers, onAddCustomer }) => {
 
               {/* Contacto */}
               <div>
-                 <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-4 flex items-center gap-2">
+                 <h4 className="text-xs font-bold text-black uppercase tracking-wider mb-4 flex items-center gap-2">
                   <Mail size={16} /> Datos de Contacto
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                    <div className="space-y-1.5">
                       <label className="text-sm font-semibold text-gray-700">Email para Factura</label>
-                      <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="facturacion@cliente.com" />
+                      <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" placeholder="facturacion@cliente.com" />
                    </div>
                    <div className="space-y-1.5">
                       <label className="text-sm font-semibold text-gray-700">Teléfono</label>
-                      <input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="+506 ..." />
+                      <input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" placeholder="+506 ..." />
                    </div>
                 </div>
               </div>
@@ -278,7 +277,7 @@ const Customers: React.FC<CustomersProps> = ({ customers, onAddCustomer }) => {
             
             <div className="flex justify-end gap-3 p-6 border-t border-gray-100 bg-gray-50">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2.5 text-gray-600 hover:bg-gray-100 rounded-xl font-medium transition-colors">Cancelar</button>
-                <button type="submit" form="customerForm" className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 font-medium shadow-lg shadow-indigo-200 transition-all">Guardar Cliente</button>
+                <button type="submit" form="customerForm" className="px-6 py-2.5 bg-black text-white rounded-xl hover:bg-gray-800 font-medium shadow-lg shadow-gray-200 transition-all border border-black">Guardar Cliente</button>
             </div>
           </div>
         </div>

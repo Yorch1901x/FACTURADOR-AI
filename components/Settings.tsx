@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AppSettings } from '../types';
 import { Save, Building2, Receipt, MapPin, Wallet, MessageSquare, RefreshCw, ShieldCheck, Lock, FileKey, UploadCloud, AlertTriangle } from 'lucide-react';
@@ -66,12 +65,12 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
         <p className="text-gray-500 mt-1">Información del Emisor y Parámetros del Sistema</p>
       </div>
       
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         <form onSubmit={handleSubmit}>
           {/* Company Section */}
           <div className="p-8 border-b border-gray-100">
             <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-6">
-              <Building2 className="text-indigo-500" size={20} /> Datos del Emisor
+              <Building2 className="text-black" size={20} /> Datos del Emisor
             </h3>
             <div className="grid grid-cols-1 gap-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -82,7 +81,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
                     required
                     value={formData.companyName} 
                     onChange={e => setFormData({...formData, companyName: e.target.value})}
-                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all"
                     placeholder="Ej. Inversiones del Valle S.A."
                   />
                 </div>
@@ -92,7 +91,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
                     type="text" 
                     value={formData.commercialName || ''} 
                     onChange={e => setFormData({...formData, commercialName: e.target.value})}
-                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all"
                     placeholder="Ej. Tienda El Valle"
                   />
                 </div>
@@ -106,7 +105,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
                       required
                       value={formData.companyTaxId} 
                       onChange={e => setFormData({...formData, companyTaxId: e.target.value})}
-                      className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                      className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all"
                       placeholder="3-101-123456"
                     />
                   </div>
@@ -116,7 +115,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
                        type="text" 
                        value={formData.companyPhone || ''} 
                        onChange={e => setFormData({...formData, companyPhone: e.target.value})}
-                       className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                       className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all"
                        placeholder="2222-2222"
                     />
                   </div>
@@ -129,7 +128,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
                        type="email" 
                        value={formData.companyEmail || ''} 
                        onChange={e => setFormData({...formData, companyEmail: e.target.value})}
-                       className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                       className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all"
                        placeholder="facturacion@empresa.com"
                     />
                   </div>
@@ -139,7 +138,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
                        type="text" 
                        value={formData.companyWebsite || ''} 
                        onChange={e => setFormData({...formData, companyWebsite: e.target.value})}
-                       className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                       className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all"
                        placeholder="www.empresa.com"
                     />
                   </div>
@@ -147,28 +146,28 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
               
               <div className="border-t border-gray-100 pt-4">
                   <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2 mb-3">
-                    <MapPin size={16} className="text-indigo-500" /> Ubicación Fiscal
+                    <MapPin size={16} className="text-black" /> Ubicación Fiscal
                   </label>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
                      <input
                         type="text"
                         value={formData.province || ''} 
                         onChange={e => setFormData({...formData, province: e.target.value})}
-                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all"
                         placeholder="Provincia"
                       />
                       <input
                         type="text"
                         value={formData.canton || ''} 
                         onChange={e => setFormData({...formData, canton: e.target.value})}
-                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all"
                         placeholder="Cantón"
                       />
                       <input
                         type="text"
                         value={formData.district || ''} 
                         onChange={e => setFormData({...formData, district: e.target.value})}
-                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all"
                         placeholder="Distrito"
                       />
                   </div>
@@ -177,7 +176,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
                     required
                     value={formData.address} 
                     onChange={e => setFormData({...formData, address: e.target.value})}
-                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all"
                     placeholder="Otras señas (Barrio, calles, número de local)"
                   />
               </div>
@@ -185,15 +184,15 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
           </div>
 
           {/* Hacienda API Configuration Section */}
-          <div className="p-8 border-b border-gray-100 bg-amber-50/30">
-            <h3 className="text-lg font-bold text-amber-800 flex items-center gap-2 mb-6">
-              <ShieldCheck className="text-amber-600" size={20} /> Facturación Electrónica (Modo Pruebas)
+          <div className="p-8 border-b border-gray-100 bg-gray-50/50">
+            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-6">
+              <ShieldCheck className="text-gray-600" size={20} /> Facturación Electrónica (Modo Pruebas)
             </h3>
-            <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 items-start">
-                <AlertTriangle className="text-amber-600 min-w-[24px]" size={24} />
+            <div className="mb-6 bg-white border border-gray-200 rounded-xl p-4 flex gap-3 items-start">
+                <AlertTriangle className="text-gray-600 min-w-[24px]" size={24} />
                 <div>
-                    <h4 className="font-bold text-amber-800 text-sm">Sistema en Sandbox (Staging)</h4>
-                    <p className="text-xs text-amber-700 mt-1">
+                    <h4 className="font-bold text-gray-900 text-sm">Sistema en Sandbox (Staging)</h4>
+                    <p className="text-xs text-gray-600 mt-1">
                         Esta aplicación está configurada exclusivamente para emitir documentos de prueba. 
                         <strong className="block mt-1">No se enviarán facturas reales a Hacienda Producción.</strong>
                     </p>
@@ -215,7 +214,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
                     type="text" 
                     value={formData.hacienda?.username || ''} 
                     onChange={e => setFormData({...formData, hacienda: {...formData.hacienda!, username: e.target.value}})}
-                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition-all bg-white"
+                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all bg-white"
                     placeholder="cpf-01-1111-2222@staging.com"
                   />
                 </div>
@@ -230,7 +229,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
                      type="password" 
                      value={formData.hacienda?.password || ''} 
                      onChange={e => setFormData({...formData, hacienda: {...formData.hacienda!, password: e.target.value}})}
-                     className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition-all bg-white"
+                     className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all bg-white"
                      placeholder="••••••••"
                    />
                 </div>
@@ -243,7 +242,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
                      maxLength={4}
                      value={formData.hacienda?.pin || ''} 
                      onChange={e => setFormData({...formData, hacienda: {...formData.hacienda!, pin: e.target.value}})}
-                     className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition-all bg-white"
+                     className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all bg-white"
                      placeholder="••••"
                    />
                 </div>
@@ -251,9 +250,9 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
                    <label className="block text-sm font-semibold text-gray-700 flex items-center gap-1">
                       <UploadCloud size={14} /> Llave Criptográfica (.p12)
                    </label>
-                   <div className={`relative w-full p-2.5 border border-dashed border-gray-300 rounded-xl bg-white flex items-center justify-center cursor-pointer hover:bg-amber-50 transition-colors ${formData.hacienda?.certificateUploaded ? 'border-green-500 bg-green-50' : ''}`}>
+                   <div className={`relative w-full p-2.5 border border-dashed border-gray-300 rounded-xl bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors ${formData.hacienda?.certificateUploaded ? 'border-black bg-gray-50' : ''}`}>
                       <input type="file" accept=".p12" onChange={handleCertificateUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
-                      <span className={`text-sm font-medium ${formData.hacienda?.certificateUploaded ? 'text-green-700' : 'text-gray-500'}`}>
+                      <span className={`text-sm font-medium ${formData.hacienda?.certificateUploaded ? 'text-black' : 'text-gray-500'}`}>
                         {formData.hacienda?.certificateUploaded ? 'Certificado Cargado ✓' : 'Seleccionar Archivo...'}
                       </span>
                    </div>
@@ -265,7 +264,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
           {/* Financial & Footer Section */}
           <div className="p-8 bg-gray-50/30">
             <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-6">
-              <Receipt className="text-green-600" size={20} /> Configuración de Factura y Moneda
+              <Receipt className="text-black" size={20} /> Configuración de Factura y Moneda
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                <div className="space-y-2">
@@ -276,7 +275,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
                   required
                   value={formData.currency} 
                   onChange={e => setFormData({...formData, currency: e.target.value})}
-                  className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all bg-white"
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all bg-white"
                 >
                   <option value="CRC">Colones (₡)</option>
                   <option value="USD">Dólares ($)</option>
@@ -292,7 +291,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
                   required
                   value={formData.exchangeRate || 520} 
                   onChange={e => setFormData({...formData, exchangeRate: parseFloat(e.target.value)})}
-                  className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all bg-white"
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all bg-white"
                   placeholder="Ej. 520"
                 />
               </div>
@@ -303,7 +302,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
                   required
                   value={formData.taxRate} 
                   onChange={e => setFormData({...formData, taxRate: parseFloat(e.target.value)})}
-                  className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all bg-white"
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all bg-white"
                 />
               </div>
             </div>
@@ -316,7 +315,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
                   rows={3}
                   value={formData.footerMessage || ''} 
                   onChange={e => setFormData({...formData, footerMessage: e.target.value})}
-                  className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all bg-white resize-none"
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all bg-white resize-none"
                   placeholder="Ej. Autorizado mediante resolución... Gracias por su compra."
                 />
             </div>
@@ -325,11 +324,11 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
           {/* Footer Action */}
           <div className="p-6 bg-gray-50 border-t border-gray-100 flex items-center justify-between sticky bottom-0 z-10">
             <div className="text-sm text-gray-500">
-              {saved ? <span className="text-green-600 font-medium animate-pulse flex items-center gap-1">Cambios guardados correctamente</span> : "Recuerda guardar tus cambios."}
+              {saved ? <span className="text-black font-bold animate-pulse flex items-center gap-1">Cambios guardados correctamente</span> : "Recuerda guardar tus cambios."}
             </div>
             <button 
               type="submit" 
-              className="bg-slate-900 text-white px-8 py-3 rounded-xl font-semibold hover:bg-slate-800 shadow-lg shadow-slate-200 flex items-center gap-2 transition-all active:scale-95"
+              className="bg-black text-white px-8 py-3 rounded-xl font-semibold hover:bg-gray-800 shadow-lg shadow-gray-200 flex items-center gap-2 transition-all active:scale-95 border border-black"
             >
               <Save size={20} /> Guardar Configuración
             </button>
