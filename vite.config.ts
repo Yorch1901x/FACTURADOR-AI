@@ -2,19 +2,17 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  // Load env file based on `mode` in the current working directory.
-  // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
-  const env = loadEnv(mode, '.', '');
+  // Carga variables de .env local O de las variables de entorno del sistema (GitHub Secrets)
+  // Fix: process.cwd is a function on the process object
+  const env = loadEnv(mode, (process as any).cwd(), '');
 
   return {
     plugins: [react()],
     define: {
-      // Stringify the values to ensure they are injected as strings.
-      // We check process.env first (for system vars/Vercel) then env (for local .env files)
-      'process.env.FIREBASE_API_KEY': JSON.stringify(process.env.FIREBASE_API_KEY || env.FIREBASE_API_KEY || ''),
-      'process.env.API_KEY': JSON.stringify(process.env.API_KEY || env.API_KEY || ''),
+      // Mapea la API_KEY para que esté disponible como process.env.API_KEY
+      'process.env.API_KEY': JSON.stringify(env.API_KEY || ''),
     },
+    // Las variables que empiezan con VITE_ se cargan automáticamente por Vite
   };
 });
