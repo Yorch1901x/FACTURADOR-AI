@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Product } from '../types';
 import { Plus, Edit2, Trash2, Search, Sparkles, X, Package, AlertTriangle, TrendingUp, MoreVertical } from 'lucide-react';
@@ -74,14 +73,14 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
         </div>
         <button 
           onClick={() => handleOpenModal()}
-          className="w-full md:w-auto bg-slate-900 text-white px-5 py-3 rounded-xl hover:bg-slate-800 flex justify-center items-center gap-2 shadow-lg shadow-slate-200 transition-all active:scale-95"
+          className="w-full md:w-auto bg-black text-white px-5 py-3 rounded-xl hover:bg-gray-800 flex justify-center items-center gap-2 shadow-lg shadow-gray-200 transition-all active:scale-95 border border-black"
         >
           <Plus size={20} /> Nuevo Producto
         </button>
       </div>
 
       {/* Toolbar */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col sm:flex-row gap-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 flex flex-col sm:flex-row gap-4">
         <div className="relative flex-grow w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           <input 
@@ -89,7 +88,7 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
             placeholder="Buscar por nombre, SKU..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-sm transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none text-sm transition-all"
           />
         </div>
       </div>
@@ -105,16 +104,16 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
           filteredProducts.map(product => {
             const margin = calculateMargin(product.price, product.cost);
             return (
-              <div key={product.id} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+              <div key={product.id} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 relative overflow-hidden">
                  <div className="flex justify-between items-start mb-2">
                     <div>
-                       <span className="inline-block px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[10px] font-bold uppercase tracking-wide mb-1">
+                       <span className="inline-block px-2 py-0.5 bg-gray-100 text-black border border-gray-200 rounded text-[10px] font-bold uppercase tracking-wide mb-1">
                           {product.sku}
                        </span>
                        <h3 className="font-bold text-gray-900 text-lg leading-tight">{product.name}</h3>
                        <p className="text-xs text-gray-500 mt-1 truncate max-w-[200px]">{product.category}</p>
                     </div>
-                    <div className={`flex flex-col items-end px-2.5 py-1 rounded-lg border ${product.stock < 5 ? 'bg-red-50 text-red-700 border-red-100' : 'bg-green-50 text-green-700 border-green-100'}`}>
+                    <div className={`flex flex-col items-end px-2.5 py-1 rounded-lg border ${product.stock < 5 ? 'bg-black text-white border-black' : 'bg-gray-50 text-gray-800 border-gray-200'}`}>
                       <span className="text-[10px] uppercase font-bold">Stock</span>
                       <span className="font-bold text-lg leading-none">{product.stock}</span>
                     </div>
@@ -129,21 +128,21 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
                     </div>
                     <div className="text-right">
                        <p className="text-[10px] text-gray-400 uppercase font-bold">Precio Venta</p>
-                       <p className="text-lg text-indigo-600 font-bold">
+                       <p className="text-lg text-black font-bold">
                          {product.currency === 'USD' ? '$' : '₡'} {product.price.toLocaleString('en-US')}
                        </p>
                     </div>
                  </div>
 
                  <div className="flex items-center justify-between mt-2 pt-2">
-                    <span className={`text-xs font-bold px-2 py-1 rounded-lg ${margin > 30 ? 'bg-green-100 text-green-700' : margin > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                    <span className="text-xs font-bold px-2 py-1 rounded-lg bg-gray-100 text-gray-600 border border-gray-200">
                        Margen: {margin.toFixed(0)}%
                     </span>
                     <div className="flex gap-2">
-                       <button onClick={() => handleOpenModal(product)} className="p-2 bg-indigo-50 text-indigo-600 rounded-lg active:scale-95 transition-transform">
+                       <button onClick={() => handleOpenModal(product)} className="p-2 bg-gray-100 text-gray-800 rounded-lg active:scale-95 transition-transform hover:bg-gray-200">
                           <Edit2 size={18} />
                        </button>
-                       <button onClick={() => onDeleteProduct(product.id)} className="p-2 bg-red-50 text-red-600 rounded-lg active:scale-95 transition-transform">
+                       <button onClick={() => onDeleteProduct(product.id)} className="p-2 bg-white border border-gray-200 text-gray-500 rounded-lg active:scale-95 transition-transform hover:bg-gray-50 hover:text-black">
                           <Trash2 size={18} />
                        </button>
                     </div>
@@ -155,10 +154,10 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-gray-600">
-            <thead className="bg-gray-50 text-gray-500 uppercase text-xs font-semibold tracking-wider">
+            <thead className="bg-gray-50 text-gray-500 uppercase text-xs font-semibold tracking-wider border-b border-gray-200">
               <tr>
                 <th className="px-6 py-4">Producto</th>
                 <th className="px-6 py-4">SKU / Categoría</th>
@@ -169,7 +168,7 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
                 <th className="px-6 py-4 text-center">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-100">
               {filteredProducts.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center">
@@ -183,14 +182,14 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
                 filteredProducts.map(product => {
                   const margin = calculateMargin(product.price, product.cost);
                   return (
-                    <tr key={product.id} className="hover:bg-indigo-50/30 transition-colors group">
+                    <tr key={product.id} className="hover:bg-gray-50 transition-colors group">
                       <td className="px-6 py-4">
                         <div className="font-semibold text-gray-900">{product.name}</div>
                         <div className="text-xs text-gray-400 mt-1 truncate max-w-xs">{product.description || 'Sin descripción'}</div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-gray-700 font-mono text-xs">{product.sku}</div>
-                        <span className="inline-block mt-1 px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] font-medium uppercase tracking-wide">
+                        <span className="inline-block mt-1 px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] font-medium uppercase tracking-wide border border-gray-200">
                           {product.category}
                         </span>
                       </td>
@@ -203,22 +202,22 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
                         {product.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </td>
                       <td className="px-6 py-4 text-right">
-                         <span className={`text-xs font-bold px-2 py-0.5 rounded ${margin > 30 ? 'bg-green-100 text-green-700' : margin > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                         <span className="text-xs font-bold px-2 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200">
                            {margin.toFixed(0)}%
                          </span>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border ${product.stock < 5 ? 'bg-red-50 text-red-700 border-red-100' : 'bg-green-50 text-green-700 border-green-100'}`}>
+                        <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border ${product.stock < 5 ? 'bg-black text-white border-black' : 'bg-gray-50 text-gray-600 border-gray-200'}`}>
                           {product.stock < 5 && <AlertTriangle size={10} />}
                           {product.stock}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center">
                         <div className="flex justify-center gap-2 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
-                          <button onClick={() => handleOpenModal(product)} className="p-2 hover:bg-indigo-100 rounded-lg text-indigo-600 transition-colors" title="Editar">
+                          <button onClick={() => handleOpenModal(product)} className="p-2 hover:bg-gray-200 rounded-lg text-gray-800 transition-colors" title="Editar">
                             <Edit2 size={16} />
                           </button>
-                          <button onClick={() => onDeleteProduct(product.id)} className="p-2 hover:bg-red-100 rounded-lg text-red-600 transition-colors" title="Eliminar">
+                          <button onClick={() => onDeleteProduct(product.id)} className="p-2 hover:bg-gray-200 rounded-lg text-gray-400 hover:text-red-500 transition-colors" title="Eliminar">
                             <Trash2 size={16} />
                           </button>
                         </div>
@@ -234,7 +233,7 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
 
       {/* Modal Overlay (Mobile Optimized) */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-end md:items-center justify-center z-[60] p-0 md:p-4 transition-opacity">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center z-[60] p-0 md:p-4 transition-opacity">
           <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-slide-up md:animate-scale-in max-h-[90vh] flex flex-col">
             <div className="flex justify-between items-center p-4 md:p-6 border-b border-gray-100 flex-shrink-0">
               <div>
@@ -248,15 +247,15 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                 <div className="space-y-1.5">
                   <label className="text-sm font-semibold text-gray-700">Nombre del Producto</label>
-                  <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all" placeholder="Ej. Laptop Pro" />
+                  <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" placeholder="Ej. Laptop Pro" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-sm font-semibold text-gray-700">SKU (Código)</label>
-                  <input required type="text" value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all" placeholder="Ej. LP-001" />
+                  <input required type="text" value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" placeholder="Ej. LP-001" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-sm font-semibold text-gray-700">Categoría</label>
-                  <input required type="text" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all" placeholder="Ej. Electrónica" />
+                  <input required type="text" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" placeholder="Ej. Electrónica" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                    <div className="space-y-1.5">
@@ -264,7 +263,7 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
                     <select 
                       value={formData.currency || 'CRC'} 
                       onChange={e => setFormData({...formData, currency: e.target.value})} 
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all bg-white"
                     >
                       <option value="CRC">Colones (₡)</option>
                       <option value="USD">Dólares ($)</option>
@@ -272,26 +271,26 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
                    </div>
                    <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-gray-700">Stock</label>
-                    <input required type="number" value={formData.stock} onChange={e => setFormData({...formData, stock: parseInt(e.target.value)})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all" />
+                    <input required type="number" value={formData.stock} onChange={e => setFormData({...formData, stock: parseInt(e.target.value)})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" />
                    </div>
                 </div>
                 
                 {/* Price and Cost Section */}
-                <div className="md:col-span-2 grid grid-cols-2 gap-5 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                <div className="md:col-span-2 grid grid-cols-2 gap-5 bg-gray-50 p-4 rounded-xl border border-gray-200">
                      <div className="space-y-1.5">
                         <label className="text-sm font-semibold text-gray-600 flex items-center gap-1">
                            Costo
                         </label>
                         <div className="relative">
-                           <input required type="number" step="0.01" value={formData.cost} onChange={e => setFormData({...formData, cost: parseFloat(e.target.value)})} className="w-full pl-3 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-400 outline-none transition-all text-gray-700" placeholder="0.00" />
+                           <input required type="number" step="0.01" value={formData.cost} onChange={e => setFormData({...formData, cost: parseFloat(e.target.value)})} className="w-full pl-3 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-400 outline-none transition-all text-gray-700 bg-white" placeholder="0.00" />
                         </div>
                     </div>
                     <div className="space-y-1.5">
-                        <label className="text-sm font-bold text-indigo-700 flex items-center gap-1">
+                        <label className="text-sm font-bold text-black flex items-center gap-1">
                            <TrendingUp size={14} /> Precio Venta
                         </label>
                         <div className="relative">
-                           <input required type="number" step="0.01" value={formData.price} onChange={e => setFormData({...formData, price: parseFloat(e.target.value)})} className="w-full pl-3 px-4 py-2.5 border border-indigo-200 bg-white rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-bold text-gray-900" placeholder="0.00" />
+                           <input required type="number" step="0.01" value={formData.price} onChange={e => setFormData({...formData, price: parseFloat(e.target.value)})} className="w-full pl-3 px-4 py-2.5 border border-gray-300 bg-white rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all font-bold text-gray-900" placeholder="0.00" />
                         </div>
                     </div>
                 </div>
@@ -304,7 +303,7 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
                     type="button" 
                     onClick={handleGenerateDescription}
                     disabled={generatingDesc || !formData.name}
-                    className="text-xs flex items-center gap-1 text-indigo-600 hover:text-indigo-700 font-medium disabled:opacity-50 hover:bg-indigo-50 px-2 py-1 rounded transition-colors"
+                    className="text-xs flex items-center gap-1 text-black border border-gray-300 hover:bg-gray-50 font-medium disabled:opacity-50 px-2 py-1 rounded transition-colors"
                   >
                     <Sparkles size={12} /> {generatingDesc ? 'Generando...' : 'Mejorar con IA'}
                   </button>
@@ -313,14 +312,14 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
                   rows={3} 
                   value={formData.description} 
                   onChange={e => setFormData({...formData, description: e.target.value})} 
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all resize-none"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all resize-none"
                   placeholder="Breve descripción del producto..."
                 />
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 flex-shrink-0 pb- safe-bottom">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-3 text-gray-600 hover:bg-gray-100 rounded-xl font-medium transition-colors w-full md:w-auto">Cancelar</button>
-                <button type="submit" className="px-5 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 font-medium shadow-lg shadow-slate-200 transition-all w-full md:w-auto">Guardar</button>
+                <button type="submit" className="px-5 py-3 bg-black text-white rounded-xl hover:bg-gray-800 font-medium shadow-lg shadow-gray-300 transition-all w-full md:w-auto">Guardar</button>
               </div>
             </form>
           </div>

@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Invoice, Expense, Product } from '../types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
@@ -39,8 +38,8 @@ const Reports: React.FC<ReportsProps> = ({ invoices, expenses, products }) => {
 
   // Chart Data: Sales vs Expenses
   const comparisonData = [
-    { name: 'Ingresos', amount: totalSales, fill: '#4f46e5' },
-    { name: 'Gastos', amount: totalExpenses, fill: '#ef4444' },
+    { name: 'Ingresos', amount: totalSales, fill: '#000000' },
+    { name: 'Gastos', amount: totalExpenses, fill: '#9ca3af' }, // gray-400
   ];
 
   // Top Products Logic
@@ -70,7 +69,8 @@ const Reports: React.FC<ReportsProps> = ({ invoices, expenses, products }) => {
     return Object.entries(catMap).map(([name, value]) => ({ name, value }));
   }, [filteredExpenses]);
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+  // Grayscale Palette
+  const COLORS = ['#000000', '#374151', '#6b7280', '#9ca3af', '#d1d5db', '#e5e7eb'];
 
   return (
     <div className="space-y-8 animate-fade-in pb-10">
@@ -81,39 +81,39 @@ const Reports: React.FC<ReportsProps> = ({ invoices, expenses, products }) => {
         </div>
         
         <div className="flex bg-white p-1 rounded-xl border border-gray-200 shadow-sm">
-           <button onClick={() => setDateRange('month')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${dateRange === 'month' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-500 hover:text-gray-700'}`}>Este Mes</button>
-           <button onClick={() => setDateRange('year')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${dateRange === 'year' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-500 hover:text-gray-700'}`}>Este Año</button>
-           <button onClick={() => setDateRange('all')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${dateRange === 'all' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-500 hover:text-gray-700'}`}>Todo</button>
+           <button onClick={() => setDateRange('month')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${dateRange === 'month' ? 'bg-gray-100 text-black' : 'text-gray-500 hover:text-gray-900'}`}>Este Mes</button>
+           <button onClick={() => setDateRange('year')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${dateRange === 'year' ? 'bg-gray-100 text-black' : 'text-gray-500 hover:text-gray-900'}`}>Este Año</button>
+           <button onClick={() => setDateRange('all')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${dateRange === 'all' ? 'bg-gray-100 text-black' : 'text-gray-500 hover:text-gray-900'}`}>Todo</button>
         </div>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group">
-            <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><TrendingUp size={64} className="text-indigo-600"/></div>
-            <p className="text-sm font-bold text-indigo-500 uppercase tracking-wide mb-2">Ventas Totales</p>
+         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 relative overflow-hidden group">
+            <div className="absolute right-0 top-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><TrendingUp size={64} className="text-black"/></div>
+            <p className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">Ventas Totales</p>
             <h3 className="text-3xl font-bold text-gray-900">₡ {totalSales.toLocaleString(undefined, {maximumFractionDigits: 0})}</h3>
             <p className="text-xs text-gray-400 mt-2 flex items-center gap-1"><Calendar size={12}/> {filteredInvoices.length} facturas emitidas</p>
          </div>
 
-         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group">
-            <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><TrendingDown size={64} className="text-red-600"/></div>
-            <p className="text-sm font-bold text-red-500 uppercase tracking-wide mb-2">Gastos Totales</p>
+         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 relative overflow-hidden group">
+            <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><TrendingDown size={64} className="text-gray-400"/></div>
+            <p className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">Gastos Totales</p>
             <h3 className="text-3xl font-bold text-gray-900">₡ {totalExpenses.toLocaleString(undefined, {maximumFractionDigits: 0})}</h3>
             <p className="text-xs text-gray-400 mt-2 flex items-center gap-1"><Activity size={12}/> {filteredExpenses.length} movimientos registrados</p>
          </div>
 
-         <div className={`bg-white p-6 rounded-2xl shadow-sm border relative overflow-hidden group ${netProfit >= 0 ? 'border-emerald-100' : 'border-red-100'}`}>
+         <div className={`bg-white p-6 rounded-2xl shadow-sm border border-gray-200 relative overflow-hidden group`}>
             <div className={`absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform`}>
-                <DollarSign size={64} className={netProfit >= 0 ? "text-emerald-600" : "text-red-600"}/>
+                <DollarSign size={64} className="text-gray-900"/>
             </div>
-            <p className={`text-sm font-bold uppercase tracking-wide mb-2 ${netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            <p className={`text-sm font-bold uppercase tracking-wide mb-2 text-gray-500`}>
                 Utilidad Neta
             </p>
-            <h3 className={`text-3xl font-bold ${netProfit >= 0 ? 'text-gray-900' : 'text-red-600'}`}>
+            <h3 className={`text-3xl font-bold text-gray-900`}>
                 ₡ {netProfit.toLocaleString(undefined, {maximumFractionDigits: 0})}
             </h3>
-            <p className={`text-xs font-bold mt-2 px-2 py-0.5 rounded w-fit ${profitMargin > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+            <p className={`text-xs font-bold mt-2 px-2 py-0.5 rounded w-fit border ${profitMargin > 0 ? 'bg-black text-white border-black' : 'bg-white text-gray-500 border-gray-300'}`}>
                Margen: {profitMargin.toFixed(1)}%
             </p>
          </div>
@@ -121,15 +121,15 @@ const Reports: React.FC<ReportsProps> = ({ invoices, expenses, products }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Chart: Income vs Expenses */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
             <h3 className="text-lg font-bold text-gray-800 mb-6">Flujo de Caja</h3>
             <div className="h-72 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={comparisonData} layout="vertical">
-                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e5e7eb" />
                         <XAxis type="number" hide />
                         <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 600}} width={80}/>
-                        <Tooltip cursor={{fill: 'transparent'}} contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'}} formatter={(value: number) => `₡ ${value.toLocaleString()}`} />
+                        <Tooltip cursor={{fill: 'transparent'}} contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', backgroundColor: '#000', color: '#fff'}} formatter={(value: number) => `₡ ${value.toLocaleString()}`} />
                         <Bar dataKey="amount" radius={[0, 4, 4, 0]} barSize={40}>
                             {comparisonData.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -141,7 +141,7 @@ const Reports: React.FC<ReportsProps> = ({ invoices, expenses, products }) => {
         </div>
 
         {/* Chart: Expense Distribution */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col">
              <h3 className="text-lg font-bold text-gray-800 mb-2">Distribución de Gastos</h3>
              <div className="flex-1 min-h-[300px]">
                  {expenseCategories.length > 0 ? (
@@ -160,7 +160,7 @@ const Reports: React.FC<ReportsProps> = ({ invoices, expenses, products }) => {
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                             </Pie>
-                            <Tooltip formatter={(value: number) => `₡ ${value.toLocaleString()}`} />
+                            <Tooltip formatter={(value: number) => `₡ ${value.toLocaleString()}`} contentStyle={{backgroundColor: '#000', border: 'none', borderRadius: 8, color: '#fff'}} itemStyle={{color: '#fff'}} />
                             <Legend verticalAlign="bottom" height={36} iconType="circle"/>
                         </PieChart>
                     </ResponsiveContainer>
@@ -172,10 +172,10 @@ const Reports: React.FC<ReportsProps> = ({ invoices, expenses, products }) => {
       </div>
 
       {/* Top Products Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-6 border-b border-gray-100 flex items-center justify-between">
              <h3 className="text-lg font-bold text-gray-800">Productos Más Vendidos</h3>
-             <FileBarChart size={20} className="text-indigo-500"/>
+             <FileBarChart size={20} className="text-black"/>
           </div>
           <table className="w-full text-left text-sm">
               <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
@@ -185,12 +185,12 @@ const Reports: React.FC<ReportsProps> = ({ invoices, expenses, products }) => {
                       <th className="px-6 py-3 font-semibold text-right">Participación</th>
                   </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-gray-100">
                   {productSales.map((item, idx) => (
                       <tr key={idx} className="hover:bg-gray-50/50">
                           <td className="px-6 py-3 font-medium text-gray-700">
                               <div className="flex items-center gap-2">
-                                  <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">
+                                  <span className="w-6 h-6 rounded-full bg-gray-100 text-black flex items-center justify-center text-xs font-bold border border-gray-200">
                                       {idx + 1}
                                   </span>
                                   {item.name}
@@ -199,7 +199,7 @@ const Reports: React.FC<ReportsProps> = ({ invoices, expenses, products }) => {
                           <td className="px-6 py-3 text-right font-bold text-gray-900">{item.qty}</td>
                           <td className="px-6 py-3 text-right">
                              <div className="w-full bg-gray-100 rounded-full h-1.5 mt-1 max-w-[100px] ml-auto">
-                                <div className="bg-indigo-500 h-1.5 rounded-full" style={{width: `${(item.qty / productSales[0].qty) * 100}%`}}></div>
+                                <div className="bg-black h-1.5 rounded-full" style={{width: `${(item.qty / productSales[0].qty) * 100}%`}}></div>
                              </div>
                           </td>
                       </tr>

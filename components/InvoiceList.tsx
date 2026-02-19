@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Invoice, AppSettings, Customer } from '../types';
 import { Eye, Printer, FileText, X, CheckCircle, AlertTriangle, Clock, Ban, FileWarning, ChevronRight } from 'lucide-react';
@@ -15,13 +14,13 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, onCancelInvoice }) 
   const [printSettings, setPrintSettings] = useState<AppSettings | null>(null);
   const [printCustomer, setPrintCustomer] = useState<Customer | undefined>(undefined);
   
-  // Helper to get status styles
+  // Helper to get status styles (Grayscale edition)
   const getStatusStyles = (status: string) => {
     switch (status) {
-      case 'paid': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-      case 'pending': return 'bg-amber-100 text-amber-700 border-amber-200';
-      case 'cancelled': return 'bg-red-100 text-red-600 border-red-200 font-bold';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'paid': return 'bg-gray-900 text-white border-gray-900';
+      case 'pending': return 'bg-white text-gray-900 border-gray-400 border-2 border-dashed';
+      case 'cancelled': return 'bg-gray-100 text-gray-400 border-gray-200 line-through';
+      default: return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
@@ -38,31 +37,31 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, onCancelInvoice }) 
     switch (status) {
       case 'aceptado': 
         return (
-          <span className="flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full border border-green-100 w-fit">
+          <span className="flex items-center gap-1 text-[10px] font-bold text-black bg-gray-100 px-2 py-1 rounded-full border border-gray-200 w-fit">
             <CheckCircle size={12} /> ACEPTADA
           </span>
         );
       case 'rechazado': 
         return (
-          <span className="flex items-center gap-1 text-[10px] font-bold text-red-700 bg-red-50 px-2 py-1 rounded-full border border-red-100 w-fit">
+          <span className="flex items-center gap-1 text-[10px] font-bold text-gray-700 bg-gray-200 px-2 py-1 rounded-full border border-gray-300 w-fit">
             <X size={12} /> RECHAZADA
           </span>
         );
       case 'procesando': 
         return (
-          <span className="flex items-center gap-1 text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-full border border-blue-100 w-fit">
+          <span className="flex items-center gap-1 text-[10px] font-bold text-gray-600 bg-white px-2 py-1 rounded-full border border-dashed border-gray-400 w-fit">
             <Clock size={12} /> PROCESANDO
           </span>
         );
       case 'anulado': 
         return (
-          <span className="flex items-center gap-1 text-[10px] font-bold text-red-500 bg-red-50 px-2 py-1 rounded-full border border-red-100 w-fit">
+          <span className="flex items-center gap-1 text-[10px] font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-full border border-gray-200 w-fit">
             <FileWarning size={12} /> ANULADA
           </span>
         );
       default:
          return (
-          <span className="flex items-center gap-1 text-[10px] font-bold text-gray-500 bg-gray-50 px-2 py-1 rounded-full border border-gray-200 w-fit">
+          <span className="flex items-center gap-1 text-[10px] font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-full border border-gray-200 w-fit">
             NO ENVIADA
           </span>
         );
@@ -107,12 +106,12 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, onCancelInvoice }) 
            </div>
         ) : (
           invoices.map(inv => (
-            <div key={inv.id} className={`bg-white p-5 rounded-2xl shadow-sm border ${inv.status === 'cancelled' ? 'border-red-100 bg-red-50/10' : 'border-gray-100'} relative overflow-hidden`}>
-              {inv.status === 'cancelled' && <div className="absolute top-0 right-0 bg-red-100 text-red-600 px-2 py-1 rounded-bl-lg text-[10px] font-bold uppercase">Anulada</div>}
+            <div key={inv.id} className={`bg-white p-5 rounded-2xl shadow-sm border ${inv.status === 'cancelled' ? 'border-gray-200 bg-gray-50' : 'border-gray-200'} relative overflow-hidden`}>
+              {inv.status === 'cancelled' && <div className="absolute top-0 right-0 bg-gray-200 text-gray-500 px-2 py-1 rounded-bl-lg text-[10px] font-bold uppercase">Anulada</div>}
               
               <div className="flex justify-between items-start mb-3">
                 <div>
-                   <p className="text-xs font-bold text-indigo-500 mb-0.5">{inv.number}</p>
+                   <p className="text-xs font-bold text-gray-900 mb-0.5">{inv.number}</p>
                    <h3 className="font-bold text-gray-900 text-lg">{inv.customerName}</h3>
                    <p className="text-xs text-gray-500">{new Date(inv.date).toLocaleDateString()} • {new Date(inv.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
                 </div>
@@ -132,11 +131,11 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, onCancelInvoice }) 
                  </span>
                  <div className="flex gap-2">
                     {inv.status !== 'cancelled' && (
-                      <button onClick={() => onCancelInvoice(inv)} className="p-2 bg-red-50 text-red-600 rounded-lg active:scale-95 transition-all border border-red-100">
+                      <button onClick={() => onCancelInvoice(inv)} className="p-2 bg-white text-gray-500 rounded-lg active:scale-95 transition-all border border-gray-200 hover:text-red-600">
                         <Ban size={18} />
                       </button>
                     )}
-                    <button onClick={() => handlePrint(inv)} className="px-4 py-2 bg-slate-900 text-white rounded-lg active:scale-95 transition-all shadow-md flex items-center gap-2 font-medium text-sm">
+                    <button onClick={() => handlePrint(inv)} className="px-4 py-2 bg-black text-white rounded-lg active:scale-95 transition-all shadow-md flex items-center gap-2 font-medium text-sm border border-black hover:bg-gray-800">
                       <Printer size={16} /> Imprimir
                     </button>
                  </div>
@@ -147,7 +146,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, onCancelInvoice }) 
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-gray-600">
             <thead className="bg-gray-50 text-gray-500 uppercase text-xs font-semibold tracking-wider">
@@ -160,7 +159,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, onCancelInvoice }) 
                 <th className="px-6 py-4 text-center rounded-tr-2xl">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-100">
               {invoices.length === 0 ? (
                  <tr>
                    <td colSpan={6} className="px-6 py-16 text-center">
@@ -172,16 +171,16 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, onCancelInvoice }) 
                  </tr>
               ) : (
                 invoices.map(inv => (
-                  <tr key={inv.id} className={`transition-colors group ${inv.status === 'cancelled' ? 'bg-gray-50 opacity-75' : 'hover:bg-indigo-50/40'}`}>
+                  <tr key={inv.id} className={`transition-colors group ${inv.status === 'cancelled' ? 'bg-gray-50 opacity-75' : 'hover:bg-gray-50'}`}>
                     <td className="px-6 py-4">
-                       <div className={`font-mono font-medium ${inv.status === 'cancelled' ? 'text-gray-500 line-through decoration-red-400' : 'text-indigo-600'}`}>{inv.number}</div>
+                       <div className={`font-mono font-medium ${inv.status === 'cancelled' ? 'text-gray-400 line-through decoration-gray-400' : 'text-black'}`}>{inv.number}</div>
                        <div className="mt-1">
                           {getHaciendaStatusBadge(inv.haciendaStatus)}
                        </div>
                     </td>
                     <td className="px-6 py-4 font-medium text-gray-900">{inv.customerName}</td>
                     <td className="px-6 py-4 text-gray-500">{new Date(inv.date).toLocaleDateString()}</td>
-                    <td className={`px-6 py-4 text-right font-bold ${inv.status === 'cancelled' ? 'text-gray-400 line-through decoration-red-400' : 'text-gray-900'}`}>{getCurrencySymbol(inv)} {inv.total.toFixed(2)}</td>
+                    <td className={`px-6 py-4 text-right font-bold ${inv.status === 'cancelled' ? 'text-gray-400 line-through decoration-gray-400' : 'text-gray-900'}`}>{getCurrencySymbol(inv)} {inv.total.toFixed(2)}</td>
                     <td className="px-6 py-4 text-center">
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusStyles(inv.status)}`}>
                         {getStatusLabel(inv.status)}
@@ -191,7 +190,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, onCancelInvoice }) 
                       <div className="flex justify-center gap-2">
                         <button 
                           onClick={() => handlePrint(inv)}
-                          className="p-2 text-gray-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors" 
+                          className="p-2 text-gray-500 hover:text-black hover:bg-gray-100 rounded-lg transition-colors" 
                           title="Imprimir"
                         >
                           <Printer size={18} />
@@ -200,7 +199,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, onCancelInvoice }) 
                         {inv.status !== 'cancelled' && (
                           <button 
                             onClick={() => onCancelInvoice(inv)}
-                            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100" 
+                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors border border-transparent hover:border-gray-200" 
                             title="Anular Factura (Devolver Stock)"
                           >
                             <Ban size={18} />
@@ -222,7 +221,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, onCancelInvoice }) 
            {/* Close button for the preview mode (hidden when printing) */}
            <button 
              onClick={() => setSelectedInvoice(null)} 
-             className="fixed top-4 right-4 bg-gray-800 text-white p-2 rounded-full shadow-lg no-print z-50 hover:bg-gray-700"
+             className="fixed top-4 right-4 bg-black text-white p-2 rounded-full shadow-lg no-print z-50 hover:bg-gray-800"
            >
              <X size={20} />
            </button>
