@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Package, Users, Settings as SettingsIcon, Menu, LogOut, X, PieChart, Receipt, ChevronLeft, ChevronRight, Cloud, WifiOff } from 'lucide-react';
+import { LayoutDashboard, FileText, Package, Users, Settings as SettingsIcon, Menu, LogOut, X, PieChart, Receipt, ChevronLeft, ChevronRight, Cloud, WifiOff, Wallet } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { isFirebaseInitialized } from '../services/firebase';
 
@@ -44,6 +45,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { path: '/', icon: LayoutDashboard, label: 'Panel' },
     { path: '/invoices', icon: FileText, label: 'Facturas' },
     { path: '/create-invoice', icon: FileText, label: 'Nueva Factura', highlight: true },
+    { path: '/create-receipt', icon: Wallet, label: 'Nuevo Recibo' },
     { path: '/inventory', icon: Package, label: 'Inventario' },
     { path: '/customers', icon: Users, label: 'Clientes' },
     { path: '/expenses', icon: Receipt, label: 'Gastos' },
