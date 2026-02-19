@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, FileText, Package, Users, Settings as SettingsIcon, Menu, LogOut, X, PieChart, Receipt, ChevronLeft, ChevronRight, Cloud, WifiOff, Wallet } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { isFirebaseInitialized } from '../services/firebase';
+import { useAuth } from './contexts/AuthContext';
+import { isFirebaseInitialized } from './services/firebase';
 
 interface LayoutProps {
   children: React.ReactNode;
