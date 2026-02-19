@@ -43,6 +43,15 @@ export interface InvoiceItem {
   total: number;
 }
 
+export interface Payment {
+  id: string;
+  date: string;
+  amount: number;
+  method: string;
+  reference?: string;
+  notes?: string;
+}
+
 export interface Invoice {
   id: string;
   number: string;
@@ -59,8 +68,15 @@ export interface Invoice {
   tax: number;
   total: number;
   status: 'paid' | 'pending' | 'cancelled';
-  paymentMethod?: string;
+  
+  // Payment Info
+  paymentMethod?: string; // Método del pago inicial
   saleCondition?: string; // Contado / Crédito
+  
+  // Credit Logic
+  balance?: number; // Saldo pendiente
+  payments?: Payment[]; // Historial de abonos
+  
   notes?: string;
   reference?: string;
   currency: string; // 'CRC' | 'USD'

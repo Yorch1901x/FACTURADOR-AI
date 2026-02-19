@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Product, Customer, Invoice, InvoiceItem, AppSettings } from '../types';
+import { Product, Customer, Invoice, InvoiceItem, AppSettings, Payment } from '../types';
 import { Plus, Trash2, Search, CreditCard, CheckCircle2, X, Printer, ArrowRight, FileCheck, Wallet, RefreshCw, Calendar } from 'lucide-react';
 import InvoicePrint from './InvoicePrint';
 
@@ -170,10 +171,19 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
 
   const { subtotal, tax, total } = calculateTotals();
 
-  // Auto-update payment amount when total changes
+  // Handle Payment Amount Logic based on Sale Condition
   useEffect(() => {
-    setPaymentAmount(total);
-  }, [total]);
+    if (saleCondition === 'Contado') {
+      // If Contado, force full payment
+      setPaymentAmount(total);
+    } else {
+      // If Crédito, we allow editing, but let's default to 0 if we switched from Contado
+      // or if it equals total (user might want to enter just a down payment)
+      if (paymentAmount === total) {
+        setPaymentAmount(0);
+      }
+    }
+  }, [total, saleCondition]);
 
   const handleSubmit = () => {
     if (!customerId || items.length === 0) {
@@ -184,6 +194,46 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
     const customer = customers.find(c => c.id === customerId);
     const time = new Date().toLocaleTimeString();
     
+    // Calculate Status and Balance
+    let status: 'paid' | 'pending' | 'cancelled' = 'paid';
+    let balance = 0;
+    const initialPayments: Payment[] = [];
+
+    // Ensure we don't save NaN
+    const validPaymentAmount = isNaN(paymentAmount) ? 0 : paymentAmount;
+
+    if (saleCondition === 'Contado') {
+        status = 'paid';
+        balance = 0;
+        // Assume full payment
+        initialPayments.push({
+            id: crypto.randomUUID(),
+            date: date,
+            amount: total,
+            method: paymentMethod,
+            notes: 'Pago de Contado'
+        });
+    } else {
+        // Crédito
+        if (validPaymentAmount >= total) {
+            status = 'paid';
+            balance = 0;
+        } else {
+            status = 'pending';
+            balance = total - validPaymentAmount;
+        }
+
+        if (validPaymentAmount > 0) {
+            initialPayments.push({
+                id: crypto.randomUUID(),
+                date: date,
+                amount: validPaymentAmount,
+                method: paymentMethod,
+                notes: 'Adelanto / Prima'
+            });
+        }
+    }
+
     const newInvoice: Invoice = {
       id: crypto.randomUUID(),
       number: `FAC-${Date.now().toString().slice(-6)}`,
@@ -199,9 +249,11 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
       subtotal,
       tax,
       total,
-      status: 'paid', 
+      status, 
       paymentMethod,
       saleCondition,
+      balance,
+      payments: initialPayments,
       notes,
       reference,
       currency,
@@ -401,9 +453,10 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-semibold text-xs">{getCurrencySymbol()}</span>
                     <input 
                       type="number" min="0" step="0.01"
-                      className="w-full pl-7 pr-3 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm font-semibold text-gray-700"
+                      className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none text-sm font-semibold text-gray-700 bg-gray-100 cursor-not-allowed"
                       value={unitPrice}
-                      onChange={e => setUnitPrice(parseFloat(e.target.value))}
+                      readOnly // Make price read-only
+                      // onChange removed to enforce readOnly. It is updated by handleProductSelect
                       placeholder="0.00"
                     />
                   </div>
@@ -603,11 +656,18 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                      <input 
                         type="number" 
                         step="0.01"
-                        className="w-full pl-8 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-black focus:border-black" 
+                        className={`w-full pl-8 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-black focus:border-black ${saleCondition === 'Contado' ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''}`}
                         value={paymentAmount || ''}
                         onChange={e => setPaymentAmount(parseFloat(e.target.value))}
+                        readOnly={saleCondition === 'Contado'}
+                        placeholder={saleCondition === 'Crédito' ? "Monto Prima / Abono" : ""}
                       />
                    </div>
+                   {saleCondition === 'Crédito' && (
+                     <span className="text-[10px] text-gray-500 mt-1 block">
+                       * Deje en 0 para crédito total o ingrese prima.
+                     </span>
+                   )}
                  </div>
               </div>
            </div>
