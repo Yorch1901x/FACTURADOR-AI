@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Lock, Mail, Loader2, AlertCircle, LogIn } from 'lucide-react';
+import { Lock, Mail, Loader2, AlertCircle, LogIn, UserPlus } from 'lucide-react';
 
 const Login: React.FC = () => {
-  const { login } = useAuth();
+  const { login, register } = useAuth();
+  const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -14,15 +16,23 @@ const Login: React.FC = () => {
     setError('');
     setIsLoading(true);
     try {
-      await login(email, password);
+      if (isRegistering) {
+        await register(email, password);
+      } else {
+        await login(email, password);
+      }
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
         setError('Credenciales incorrectas. Verifique su email y contraseña.');
+      } else if (err.code === 'auth/email-already-in-use') {
+        setError('El correo electrónico ya está registrado.');
+      } else if (err.code === 'auth/weak-password') {
+        setError('La contraseña debe tener al menos 6 caracteres.');
       } else if (err.code === 'auth/too-many-requests') {
         setError('Demasiados intentos fallidos. Intente más tarde.');
       } else {
-        setError('Error al iniciar sesión. Intente nuevamente.');
+        setError('Error al procesar solicitud. Intente nuevamente.');
       }
     } finally {
       setIsLoading(false);
@@ -83,8 +93,22 @@ const Login: React.FC = () => {
               disabled={isLoading}
               className="w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors shadow-md disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2 active:scale-95"
             >
-              {isLoading ? <Loader2 className="animate-spin" size={20} /> : <><LogIn size={20} /> Ingresar al Sistema</>}
+              {isLoading ? (
+                <Loader2 className="animate-spin" size={20} />
+              ) : (
+                isRegistering ? <><UserPlus size={20} /> Crear Cuenta</> : <><LogIn size={20} /> Ingresar al Sistema</>
+              )}
             </button>
+            
+            <div className="text-center pt-2">
+              <button 
+                type="button"
+                onClick={() => { setError(''); setIsRegistering(!isRegistering); }}
+                className="text-sm text-gray-600 hover:text-black hover:underline transition-all"
+              >
+                {isRegistering ? '¿Ya tienes cuenta? Inicia Sesión' : '¿No tienes cuenta? Regístrate'}
+              </button>
+            </div>
           </form>
         </div>
       </div>

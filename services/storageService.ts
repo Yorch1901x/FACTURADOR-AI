@@ -1,4 +1,5 @@
-import { Product, Customer, Invoice, AppSettings, InvoiceItem, Expense } from '../types';
+
+import { Product, Customer, Invoice, AppSettings, InvoiceItem, Expense, Payment } from '../types';
 import { db } from './firebase';
 import { 
   collection, 
@@ -8,7 +9,9 @@ import {
   deleteDoc, 
   getDoc,
   writeBatch,
-  increment
+  increment,
+  updateDoc,
+  arrayUnion
 } from 'firebase/firestore';
 
 const COLLECTIONS = {
@@ -168,6 +171,57 @@ export const StorageService = {
     await batch.commit();
   },
 
+  addPayment: async (invoiceId: string, payment: Payment) => {
+    if (!db) {
+        const invoices = ls.get<Invoice>(COLLECTIONS.INVOICES);
+        const idx = invoices.findIndex(i => i.id === invoiceId);
+        if (idx >= 0) {
+            const inv = invoices[idx];
+            const newPayments = [...(inv.payments || []), payment];
+            const currentBalance = (inv.balance !== undefined && !isNaN(inv.balance)) ? inv.balance : inv.total;
+            const newBalance = Math.max(0, currentBalance - payment.amount);
+            
+            inv.payments = newPayments;
+            inv.balance = newBalance;
+            if (newBalance <= 0.01) {
+                inv.status = 'paid';
+                inv.balance = 0;
+            } else {
+                inv.status = 'pending';
+            }
+            ls.set(COLLECTIONS.INVOICES, invoices);
+        }
+        return;
+    }
+
+    const invoiceRef = doc(db, COLLECTIONS.INVOICES, invoiceId);
+    
+    // CORRECCIÓN IMPORTANTE:
+    // En Firestore, no se puede llamar a batch.update múltiples veces sobre la misma referencia en un solo batch para ciertos campos.
+    // Usamos updateDoc para combinar ambas operaciones en una sola llamada atómica directa al documento.
+    
+    try {
+      await updateDoc(invoiceRef, {
+          payments: arrayUnion(payment),
+          balance: increment(-payment.amount)
+      });
+  
+      // Verificación secundaria para actualizar el estado si llega a 0
+      // Leemos el documento actualizado
+      const snap = await getDoc(invoiceRef);
+      if (snap.exists()) {
+          const data = snap.data() as Invoice;
+          // Usamos una tolerancia pequeña para errores de punto flotante
+          if ((data.balance || 0) <= 0.01) { 
+               await updateDoc(invoiceRef, { status: 'paid', balance: 0 });
+          }
+      }
+    } catch (error) {
+      console.error("Error adding payment:", error);
+      throw error; // Re-throw para que la UI sepa que falló
+    }
+  },
+
   cancelInvoice: async (invoiceId: string, items: InvoiceItem[]) => {
     if (!db) {
       // Local Cancel
@@ -176,6 +230,7 @@ export const StorageService = {
       if (invIndex >= 0) {
          invoices[invIndex].status = 'cancelled';
          invoices[invIndex].haciendaStatus = 'anulado';
+         invoices[invIndex].balance = 0; // Clear balance
          ls.set(COLLECTIONS.INVOICES, invoices);
 
          const products = ls.get<Product>(COLLECTIONS.PRODUCTS);
@@ -196,7 +251,8 @@ export const StorageService = {
     const invoiceRef = doc(db, COLLECTIONS.INVOICES, invoiceId);
     batch.update(invoiceRef, { 
       status: 'cancelled',
-      haciendaStatus: 'anulado' 
+      haciendaStatus: 'anulado',
+      balance: 0
     });
 
     // 2. Restore Stock

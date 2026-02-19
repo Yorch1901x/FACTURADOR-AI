@@ -7,13 +7,14 @@ import Inventory from './components/Inventory';
 import Customers from './components/Customers';
 import InvoiceList from './components/InvoiceList';
 import InvoiceForm from './components/InvoiceForm';
+import ReceiptForm from './components/ReceiptForm'; // Nuevo
 import Settings from './components/Settings';
 import Login from './components/Login';
-import Expenses from './components/Expenses'; // New
-import Reports from './components/Reports'; // New
+import Expenses from './components/Expenses';
+import Reports from './components/Reports';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { StorageService } from './services/storageService';
-import { Product, Customer, Invoice, AppSettings, Expense } from './types';
+import { Product, Customer, Invoice, AppSettings, Expense, Payment } from './types';
 import { Loader2 } from 'lucide-react';
 
 const AuthenticatedApp: React.FC = () => {
@@ -22,7 +23,7 @@ const AuthenticatedApp: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]); // New
+  const [expenses, setExpenses] = useState<Expense[]>([]); 
   const [settings, setSettings] = useState<AppSettings>({
     companyName: '', companyTaxId: '', currency: '', taxRate: 0, address: '', exchangeRate: 520
   });
@@ -34,8 +35,6 @@ const AuthenticatedApp: React.FC = () => {
       
       try {
         setLoadingData(true);
-        // Opcional: StorageService.seedData(); si se necesita sembrar datos iniciales
-        
         // Load all data in parallel
         const [prodData, custData, invData, expData, settData] = await Promise.all([
           StorageService.getProducts(),
@@ -97,27 +96,25 @@ const AuthenticatedApp: React.FC = () => {
       return p;
     });
 
-    // 2. Calcular Costo Total de los Bienes Vendidos (COGS)
-    // Usamos el costo histórico guardado en el item, o el costo actual del producto como fallback
+    // 2. Calcular Costo
     let totalCostAmount = 0;
     invoice.items.forEach(item => {
-      // Si el ítem tiene costo guardado, úsalo. Si no, busca en productos (fallback).
       const unitCost = item.cost !== undefined ? item.cost : (products.find(p => p.id === item.productId)?.cost || 0);
       totalCostAmount += (unitCost * item.quantity);
     });
 
     let automaticExpense: Expense | undefined = undefined;
 
-    // 3. Si hay costo asociado, crear el objeto Gasto
+    // 3. Crear Gasto Automático
     if (totalCostAmount > 0) {
       automaticExpense = {
         id: crypto.randomUUID(),
-        date: invoice.date, // Misma fecha de la factura
+        date: invoice.date, 
         provider: 'Inventario Interno',
         category: 'Costo de Ventas',
         description: `Costo de mercadería vendida - Fac #${invoice.number}`,
         amount: totalCostAmount,
-        currency: invoice.currency, // Asumimos misma moneda o habría que convertir
+        currency: invoice.currency,
         reference: invoice.number
       };
     }
@@ -129,7 +126,7 @@ const AuthenticatedApp: React.FC = () => {
       setExpenses(prev => [automaticExpense!, ...prev]);
     }
 
-    // 5. Guardar todo en Base de Datos (Atómico)
+    // 5. Guardar
     await StorageService.createInvoice(invoice, stockUpdates, automaticExpense);
   };
 
@@ -139,17 +136,14 @@ const AuthenticatedApp: React.FC = () => {
     }
 
     try {
-      // 1. Perform DB Operation first to ensure integrity
       await StorageService.cancelInvoice(invoice.id, invoice.items);
 
-      // 2. Update Local Invoices State
       setInvoices(prev => prev.map(inv => 
         inv.id === invoice.id 
           ? { ...inv, status: 'cancelled', haciendaStatus: 'anulado' } 
           : inv
       ));
 
-      // 3. Update Local Products Stock State
       const stockMap = new Map<string, number>();
       invoice.items.forEach(item => {
         stockMap.set(item.productId, (stockMap.get(item.productId) || 0) + item.quantity);
@@ -161,21 +155,38 @@ const AuthenticatedApp: React.FC = () => {
         }
         return p;
       }));
-
-      // Nota: No eliminamos el gasto localmente para simplificar, pero se podría filtrar
-      // expenses donde reference === invoice.number si quisiéramos limpiar el gasto también.
       
-      alert("Factura anulada correctamente. El stock ha sido restaurado.");
+      alert("Factura anulada correctamente.");
 
     } catch (error) {
       console.error("Error al anular factura:", error);
-      alert("Hubo un error al conectar con la base de datos. La factura no fue anulada.");
+      alert("Hubo un error al conectar con la base de datos.");
     }
+  };
+
+  // Payment Handler for ReceiptForm
+  const handleAddPayment = async (invoiceId: string, payment: Payment) => {
+      await StorageService.addPayment(invoiceId, payment);
+      
+      // Update local state to reflect payment immediately
+      setInvoices(prev => prev.map(inv => {
+          if (inv.id === invoiceId) {
+             const newPayments = [...(inv.payments || []), payment];
+             const currentBalance = (inv.balance !== undefined && !isNaN(inv.balance)) ? inv.balance : inv.total;
+             const newBalance = Math.max(0, currentBalance - payment.amount);
+             return {
+                 ...inv,
+                 payments: newPayments,
+                 balance: newBalance,
+                 status: newBalance <= 0.01 ? 'paid' : 'pending'
+             };
+          }
+          return inv;
+      }));
   };
 
   const handleUpdateStock = (productId: string, qty: number) => {};
 
-  // Expense Management
   const handleAddExpense = async (expense: Expense) => {
     setExpenses(prev => [expense, ...prev]);
     await StorageService.addExpense(expense);
@@ -224,7 +235,7 @@ const AuthenticatedApp: React.FC = () => {
           />
           <Route 
             path="/invoices" 
-            element={<InvoiceList invoices={invoices} onCancelInvoice={handleCancelInvoice} />} 
+            element={<InvoiceList invoices={invoices} onCancelInvoice={handleCancelInvoice} onAddPayment={handleAddPayment} />} 
           />
           <Route 
             path="/create-invoice" 
@@ -235,6 +246,15 @@ const AuthenticatedApp: React.FC = () => {
                 settings={settings}
                 onCreateInvoice={handleCreateInvoice}
                 onUpdateStock={handleUpdateStock}
+              />
+            } 
+          />
+           <Route 
+            path="/create-receipt" 
+            element={
+              <ReceiptForm 
+                invoices={invoices}
+                onAddPayment={handleAddPayment}
               />
             } 
           />
