@@ -28,8 +28,8 @@ const Reports: React.FC<ReportsProps> = ({ invoices, expenses, products }) => {
   };
 
   // --- Data Processing ---
-  const filteredInvoices = useMemo(() => filterByDate(invoices), [invoices, dateRange]);
-  const filteredExpenses = useMemo(() => filterByDate(expenses), [expenses, dateRange]);
+  const filteredInvoices = useMemo(() => filterByDate(invoices) as Invoice[], [invoices, dateRange]);
+  const filteredExpenses = useMemo(() => filterByDate(expenses) as Expense[], [expenses, dateRange]);
 
   const totalSales = filteredInvoices.reduce((acc, curr) => acc + curr.total, 0);
   const totalExpenses = filteredExpenses.reduce((acc, curr) => acc + curr.amount, 0); // Assumes simplified single currency for demo

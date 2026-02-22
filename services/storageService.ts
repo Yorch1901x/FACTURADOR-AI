@@ -89,35 +89,35 @@ export const StorageService = {
   // Products
   getProducts: async (): Promise<Product[]> => {
     if (!db) return ls.get<Product>(COLLECTIONS.PRODUCTS);
-    const snapshot = await getDocs(collection(db, COLLECTIONS.PRODUCTS));
+    const snapshot = await getDocs(collection(db!, COLLECTIONS.PRODUCTS));
     return snapshotToData<Product>(snapshot);
   },
   
   addProduct: async (product: Product) => {
     if (!db) return ls.add(COLLECTIONS.PRODUCTS, product);
-    await setDoc(doc(db, COLLECTIONS.PRODUCTS, product.id), product);
+    await setDoc(doc(db!, COLLECTIONS.PRODUCTS, product.id), product);
   },
 
   updateProduct: async (product: Product) => {
     if (!db) return ls.update(COLLECTIONS.PRODUCTS, product);
-    await setDoc(doc(db, COLLECTIONS.PRODUCTS, product.id), product, { merge: true });
+    await setDoc(doc(db!, COLLECTIONS.PRODUCTS, product.id), product, { merge: true });
   },
 
   deleteProduct: async (id: string) => {
     if (!db) return ls.delete(COLLECTIONS.PRODUCTS, id);
-    await deleteDoc(doc(db, COLLECTIONS.PRODUCTS, id));
+    await deleteDoc(doc(db!, COLLECTIONS.PRODUCTS, id));
   },
 
   // Customers
   getCustomers: async (): Promise<Customer[]> => {
     if (!db) return ls.get<Customer>(COLLECTIONS.CUSTOMERS);
-    const snapshot = await getDocs(collection(db, COLLECTIONS.CUSTOMERS));
+    const snapshot = await getDocs(collection(db!, COLLECTIONS.CUSTOMERS));
     return snapshotToData<Customer>(snapshot);
   },
 
   addCustomer: async (customer: Customer) => {
     if (!db) return ls.add(COLLECTIONS.CUSTOMERS, customer);
-    await setDoc(doc(db, COLLECTIONS.CUSTOMERS, customer.id), customer);
+    await setDoc(doc(db!, COLLECTIONS.CUSTOMERS, customer.id), customer);
   },
 
   // Invoices
@@ -126,7 +126,7 @@ export const StorageService = {
        const invoices = ls.get<Invoice>(COLLECTIONS.INVOICES);
        return invoices.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }
-    const snapshot = await getDocs(collection(db, COLLECTIONS.INVOICES));
+    const snapshot = await getDocs(collection(db!, COLLECTIONS.INVOICES));
     return snapshotToData<Invoice>(snapshot).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   },
 
@@ -150,21 +150,22 @@ export const StorageService = {
       return;
     }
 
-    const batch = writeBatch(db);
+    const firestore = db!;
+    const batch = writeBatch(firestore);
 
     // 1. Create Invoice
-    const invoiceRef = doc(db, COLLECTIONS.INVOICES, invoice.id);
+    const invoiceRef = doc(firestore, COLLECTIONS.INVOICES, invoice.id);
     batch.set(invoiceRef, invoice);
 
     // 2. Update Product Stocks atomically
     productsToUpdate.forEach(p => {
-      const productRef = doc(db, COLLECTIONS.PRODUCTS, p.id);
+      const productRef = doc(firestore, COLLECTIONS.PRODUCTS, p.id);
       batch.update(productRef, { stock: p.newStock });
     });
 
     // 3. Create Automatic Expense if provided
     if (automaticExpense) {
-      const expenseRef = doc(db, COLLECTIONS.EXPENSES, automaticExpense.id);
+      const expenseRef = doc(firestore, COLLECTIONS.EXPENSES, automaticExpense.id);
       batch.set(expenseRef, automaticExpense);
     }
 
@@ -194,7 +195,7 @@ export const StorageService = {
         return;
     }
 
-    const invoiceRef = doc(db, COLLECTIONS.INVOICES, invoiceId);
+    const invoiceRef = doc(db!, COLLECTIONS.INVOICES, invoiceId);
     
     // CORRECCIÓN IMPORTANTE:
     // En Firestore, no se puede llamar a batch.update múltiples veces sobre la misma referencia en un solo batch para ciertos campos.
@@ -245,10 +246,11 @@ export const StorageService = {
       return;
     }
 
-    const batch = writeBatch(db);
+    const firestore = db!;
+    const batch = writeBatch(firestore);
 
     // 1. Mark Invoice as Cancelled
-    const invoiceRef = doc(db, COLLECTIONS.INVOICES, invoiceId);
+    const invoiceRef = doc(firestore, COLLECTIONS.INVOICES, invoiceId);
     batch.update(invoiceRef, { 
       status: 'cancelled',
       haciendaStatus: 'anulado',
@@ -258,7 +260,7 @@ export const StorageService = {
     // 2. Restore Stock
     (items || []).forEach(item => {
       if (item.productId) {
-        const productRef = doc(db, COLLECTIONS.PRODUCTS, item.productId);
+        const productRef = doc(firestore, COLLECTIONS.PRODUCTS, item.productId);
         batch.set(productRef, { stock: increment(item.quantity) }, { merge: true });
       }
     });
@@ -272,18 +274,18 @@ export const StorageService = {
        const expenses = ls.get<Expense>(COLLECTIONS.EXPENSES);
        return expenses.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }
-    const snapshot = await getDocs(collection(db, COLLECTIONS.EXPENSES));
+    const snapshot = await getDocs(collection(db!, COLLECTIONS.EXPENSES));
     return snapshotToData<Expense>(snapshot).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   },
 
   addExpense: async (expense: Expense) => {
     if (!db) return ls.add(COLLECTIONS.EXPENSES, expense);
-    await setDoc(doc(db, COLLECTIONS.EXPENSES, expense.id), expense);
+    await setDoc(doc(db!, COLLECTIONS.EXPENSES, expense.id), expense);
   },
 
   deleteExpense: async (id: string) => {
     if (!db) return ls.delete(COLLECTIONS.EXPENSES, id);
-    await deleteDoc(doc(db, COLLECTIONS.EXPENSES, id));
+    await deleteDoc(doc(db!, COLLECTIONS.EXPENSES, id));
   },
 
   // Settings
@@ -294,7 +296,7 @@ export const StorageService = {
        return defaultSettings;
     }
 
-    const docRef = doc(db, COLLECTIONS.SETTINGS, 'general');
+    const docRef = doc(db!, COLLECTIONS.SETTINGS, 'general');
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       const data = docSnap.data() as AppSettings;
@@ -311,7 +313,7 @@ export const StorageService = {
        localStorage.setItem(`${LS_PREFIX}${COLLECTIONS.SETTINGS}`, JSON.stringify(settings));
        return;
     }
-    await setDoc(doc(db, COLLECTIONS.SETTINGS, 'general'), settings);
+    await setDoc(doc(db!, COLLECTIONS.SETTINGS, 'general'), settings);
   },
   
   // Seeder

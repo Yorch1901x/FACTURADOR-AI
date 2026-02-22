@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Package, Users, Settings as SettingsIcon, Menu, LogOut, X, PieChart, Receipt, ChevronLeft, ChevronRight, Cloud, WifiOff, Wallet } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, FileText, Package, Users, Settings as SettingsIcon, Menu, LogOut, X, PieChart, Receipt, ChevronLeft, ChevronRight, Cloud, WifiOff, Wallet, Home } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { isFirebaseInitialized } from '../services/firebase';
 
@@ -11,6 +11,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const { logout, user } = useAuth();
@@ -42,15 +43,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, [location, isMobile]);
 
   const menuItems = [
-    { path: '/', icon: LayoutDashboard, label: 'Panel' },
-    { path: '/invoices', icon: FileText, label: 'Facturas' },
-    { path: '/create-invoice', icon: FileText, label: 'Nueva Factura', highlight: true },
-    { path: '/create-receipt', icon: Wallet, label: 'Nuevo Recibo' },
-    { path: '/inventory', icon: Package, label: 'Inventario' },
-    { path: '/customers', icon: Users, label: 'Clientes' },
-    { path: '/expenses', icon: Receipt, label: 'Gastos' },
-    { path: '/reports', icon: PieChart, label: 'Reportes' },
-    { path: '/settings', icon: SettingsIcon, label: 'Configuración' },
+    { path: '/workspace', icon: LayoutDashboard, label: 'Panel' },
+    { path: '/workspace/invoices', icon: FileText, label: 'Facturas' },
+    { path: '/workspace/create-invoice', icon: FileText, label: 'Nueva Factura', highlight: true },
+    { path: '/workspace/create-receipt', icon: Wallet, label: 'Nuevo Recibo' },
+    { path: '/workspace/inventory', icon: Package, label: 'Inventario' },
+    { path: '/workspace/customers', icon: Users, label: 'Clientes' },
+    { path: '/workspace/expenses', icon: Receipt, label: 'Gastos' },
+    { path: '/workspace/reports', icon: PieChart, label: 'Reportes' },
+    { path: '/workspace/settings', icon: SettingsIcon, label: 'Configuración' },
   ];
 
   return (
@@ -113,7 +114,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Navigation */}
         <nav className="flex-1 py-6 space-y-2 px-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 overflow-x-hidden">
           {menuItems.map((item) => {
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname === item.path || (item.path === '/workspace' && location.pathname === '/workspace/');
             return (
               <Link
                 key={item.path}
@@ -144,7 +145,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           })}
         </nav>
 
-        {/* Footer / User */}
+          {/* Footer / User */}
         <div className="p-4 border-t border-gray-800 bg-black">
           {/* Connection Status Indicator */}
            {sidebarOpen && (
@@ -153,6 +154,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <span>{isFirebaseInitialized ? 'Conectado (Cloud)' : 'Modo Local'}</span>
             </div>
           )}
+
+          <button 
+            onClick={() => navigate('/')}
+            className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-gray-400 hover:bg-gray-900 hover:text-white transition-all whitespace-nowrap group mb-2 ${!sidebarOpen ? 'justify-center' : ''}`}
+            title="Volver al Inicio"
+          >
+            <Home size={22} className="min-w-[22px]" />
+            <span className={`font-medium transition-all duration-200 ${sidebarOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>
+              Inicio
+            </span>
+          </button>
 
           <button 
             onClick={logout}

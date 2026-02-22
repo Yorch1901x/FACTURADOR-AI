@@ -551,7 +551,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                           </div>
                           <div className="col-span-1 text-center text-gray-700">{item.quantity}</div>
                           <div className="col-span-2 text-right text-gray-700">{getCurrencySymbol()} {item.price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                          <div className="col-span-1 text-center text-gray-500">{item.discount > 0 ? `${item.discount}%` : '-'}</div>
+                          <div className="col-span-1 text-center text-gray-500">{(item.discount || 0) > 0 ? `${item.discount}%` : '-'}</div>
                           <div className="col-span-2 text-right font-bold text-gray-900">{getCurrencySymbol()} {item.total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                           <div className="col-span-1 text-center">
                             <button onClick={() => handleRemoveItem(idx)} className="text-gray-400 hover:text-red-600 transition-colors p-1">
@@ -566,7 +566,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ products, customers, settings
                             <div className="font-bold text-gray-800 text-sm mb-1">{item.productName}</div>
                             <div className="text-xs text-gray-500 mb-2">
                                {item.quantity} x {getCurrencySymbol()}{item.price.toLocaleString('en-US')} 
-                               {item.discount > 0 && <span className="text-gray-900 ml-1">(-{item.discount}%)</span>}
+                               {(item.discount || 0) > 0 && <span className="text-gray-900 ml-1">(-{item.discount}%)</span>}
                             </div>
                          </div>
                          <div className="text-right flex flex-col items-end gap-2">
