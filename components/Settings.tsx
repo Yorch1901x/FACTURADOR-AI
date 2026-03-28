@@ -253,7 +253,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
                    <div className={`relative w-full p-2.5 border border-dashed border-gray-300 rounded-xl bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors ${formData.hacienda?.certificateUploaded ? 'border-black bg-gray-50' : ''}`}>
                       <input type="file" accept=".p12" onChange={handleCertificateUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
                       <span className={`text-sm font-medium ${formData.hacienda?.certificateUploaded ? 'text-black' : 'text-gray-500'}`}>
-                        {formData.hacienda?.certificateUploaded ? 'Certificado Cargado ✓' : 'Seleccionar Archivo...'}
+                        {formData.hacienda?.certificateUploaded ? 'Certificado Cargado' : 'Seleccionar Archivo...'}
                       </span>
                    </div>
                 </div>
