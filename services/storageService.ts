@@ -1,27 +1,42 @@
 
 import { Product, Customer, Invoice, AppSettings, InvoiceItem, Expense, Payment } from '../types';
 import { db } from './firebase';
-import { 
-  collection, 
-  getDocs, 
-  doc, 
-  setDoc, 
-  deleteDoc, 
+import {
+  collection,
+  getDocs,
+  doc,
+  setDoc,
+  deleteDoc,
   getDoc,
   writeBatch,
   increment,
   updateDoc,
   arrayUnion
 } from 'firebase/firestore';
+import { logger } from './logger';
+
+// ── Collection helpers ────────────────────────────────────────────────────────
+//
+// All data now lives under organizations/{orgId}/... to support multi-tenancy.
+// When Firebase is not initialized (demo mode) we fall through to localStorage.
 
 const COLLECTIONS = {
-  PRODUCTS: 'products',
+  PRODUCTS:  'products',
   CUSTOMERS: 'customers',
-  INVOICES: 'invoices',
-  EXPENSES: 'expenses',
-  SETTINGS: 'settings',
+  INVOICES:  'invoices',
+  EXPENSES:  'expenses',
+  SETTINGS:  'settings',
 };
 
+/** Returns a Firestore collection reference scoped to the active organization */
+const orgCol = (orgId: string, col: string) =>
+  collection(db!, 'organizations', orgId, col);
+
+/** Returns a Firestore document reference scoped to the active organization */
+const orgDoc = (orgId: string, col: string, id: string) =>
+  doc(db!, 'organizations', orgId, col, id);
+
+// ── Default settings ──────────────────────────────────────────────────────────
 const defaultSettings: AppSettings = {
   companyName: 'Mi Empresa S.A.',
   commercialName: 'Tecnología y Más',
@@ -30,345 +45,275 @@ const defaultSettings: AppSettings = {
   companyPhone: '2222-0000',
   companyWebsite: 'www.miempresa.cr',
   footerMessage: 'Autorizado mediante resolución DGT-R-033-2019. Gracias por su preferencia.',
-  currency: 'CRC', 
+  currency: 'CRC',
   exchangeRate: 520,
   taxRate: 13,
   address: 'San José, Mata Redonda, Sabana Norte, Edificio Principal',
   province: 'San José',
   canton: 'San José',
   district: 'Mata Redonda',
-  hacienda: {
-    environment: 'staging',
-    username: '',
-    password: '',
-    pin: '',
-    certificateUploaded: false
-  }
+  hacienda: { environment: 'staging' },
 };
 
-// --- LOCAL STORAGE HELPERS (Demo Mode) ---
-// Prefixed to avoid conflicts
+// ── LocalStorage helpers (Demo Mode) ─────────────────────────────────────────
 const LS_PREFIX = 'fai_db_';
-
 const ls = {
   get: <T>(key: string): T[] => {
-    try {
-      return JSON.parse(localStorage.getItem(`${LS_PREFIX}${key}`) || '[]');
-    } catch (e) { return []; }
+    try { return JSON.parse(localStorage.getItem(`${LS_PREFIX}${key}`) || '[]'); }
+    catch { return []; }
   },
-  set: (key: string, data: any) => localStorage.setItem(`${LS_PREFIX}${key}`, JSON.stringify(data)),
-  
-  add: (key: string, item: any) => {
+  set:    (key: string, data: any)  => localStorage.setItem(`${LS_PREFIX}${key}`, JSON.stringify(data)),
+  add:    (key: string, item: any)  => {
     const items = ls.get<any>(key);
-    // Update if exists, else push
     const idx = items.findIndex((i: any) => i.id === item.id);
-    if (idx >= 0) items[idx] = item;
-    else items.push(item);
+    if (idx >= 0) items[idx] = item; else items.push(item);
     ls.set(key, items);
   },
-  
-  update: (key: string, item: any) => ls.add(key, item),
-  
-  delete: (key: string, id: string) => {
-    const items = ls.get<any>(key);
-    ls.set(key, items.filter((i: any) => i.id !== id));
-  },
-  
-  getOne: <T>(key: string, id: string): T | undefined => {
-    const items = ls.get<any>(key);
-    return items.find((i: any) => i.id === id);
-  }
+  update: (key: string, item: any)  => ls.add(key, item),
+  delete: (key: string, id: string) => ls.set(key, ls.get<any>(key).filter((i: any) => i.id !== id)),
+  getOne: <T>(key: string, id: string): T | undefined =>
+    ls.get<any>(key).find((i: any) => i.id === id),
 };
 
-// Helper to convert Firestore snapshot to typed array
-const snapshotToData = <T>(snapshot: any): T[] => {
-  return snapshot.docs.map((doc: any) => ({ ...doc.data(), id: doc.id })) as T[];
-};
+const snapshotToData = <T>(snapshot: any): T[] =>
+  snapshot.docs.map((d: any) => ({ ...d.data(), id: d.id })) as T[];
+
+// ── Storage Service ───────────────────────────────────────────────────────────
 
 export const StorageService = {
+
   // Products
-  getProducts: async (): Promise<Product[]> => {
-    if (!db) return ls.get<Product>(COLLECTIONS.PRODUCTS);
-    const snapshot = await getDocs(collection(db!, COLLECTIONS.PRODUCTS));
-    return snapshotToData<Product>(snapshot);
-  },
-  
-  addProduct: async (product: Product) => {
-    if (!db) return ls.add(COLLECTIONS.PRODUCTS, product);
-    await setDoc(doc(db!, COLLECTIONS.PRODUCTS, product.id), product);
+  getProducts: async (orgId?: string): Promise<Product[]> => {
+    if (!db || !orgId) return ls.get<Product>(COLLECTIONS.PRODUCTS);
+    const snap = await getDocs(orgCol(orgId, COLLECTIONS.PRODUCTS));
+    return snapshotToData<Product>(snap);
   },
 
-  updateProduct: async (product: Product) => {
-    if (!db) return ls.update(COLLECTIONS.PRODUCTS, product);
-    await setDoc(doc(db!, COLLECTIONS.PRODUCTS, product.id), product, { merge: true });
+  addProduct: async (product: Product, orgId?: string) => {
+    if (!db || !orgId) return ls.add(COLLECTIONS.PRODUCTS, product);
+    await setDoc(orgDoc(orgId, COLLECTIONS.PRODUCTS, product.id), product);
   },
 
-  deleteProduct: async (id: string) => {
-    if (!db) return ls.delete(COLLECTIONS.PRODUCTS, id);
-    await deleteDoc(doc(db!, COLLECTIONS.PRODUCTS, id));
+  updateProduct: async (product: Product, orgId?: string) => {
+    if (!db || !orgId) return ls.update(COLLECTIONS.PRODUCTS, product);
+    await setDoc(orgDoc(orgId, COLLECTIONS.PRODUCTS, product.id), product, { merge: true });
+  },
+
+  deleteProduct: async (id: string, orgId?: string) => {
+    if (!db || !orgId) return ls.delete(COLLECTIONS.PRODUCTS, id);
+    await deleteDoc(orgDoc(orgId, COLLECTIONS.PRODUCTS, id));
   },
 
   // Customers
-  getCustomers: async (): Promise<Customer[]> => {
-    if (!db) return ls.get<Customer>(COLLECTIONS.CUSTOMERS);
-    const snapshot = await getDocs(collection(db!, COLLECTIONS.CUSTOMERS));
-    return snapshotToData<Customer>(snapshot);
+  getCustomers: async (orgId?: string): Promise<Customer[]> => {
+    if (!db || !orgId) return ls.get<Customer>(COLLECTIONS.CUSTOMERS);
+    const snap = await getDocs(orgCol(orgId, COLLECTIONS.CUSTOMERS));
+    return snapshotToData<Customer>(snap);
   },
 
-  addCustomer: async (customer: Customer) => {
-    if (!db) return ls.add(COLLECTIONS.CUSTOMERS, customer);
-    await setDoc(doc(db!, COLLECTIONS.CUSTOMERS, customer.id), customer);
+  addCustomer: async (customer: Customer, orgId?: string) => {
+    if (!db || !orgId) return ls.add(COLLECTIONS.CUSTOMERS, customer);
+    await setDoc(orgDoc(orgId, COLLECTIONS.CUSTOMERS, customer.id), customer);
+  },
+
+  updateCustomer: async (customer: Customer, orgId?: string) => {
+    if (!db || !orgId) return ls.update(COLLECTIONS.CUSTOMERS, customer);
+    await setDoc(orgDoc(orgId, COLLECTIONS.CUSTOMERS, customer.id), customer, { merge: true });
   },
 
   // Invoices
-  getInvoices: async (): Promise<Invoice[]> => {
-    if (!db) {
-       const invoices = ls.get<Invoice>(COLLECTIONS.INVOICES);
-       return invoices.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  getInvoices: async (orgId?: string): Promise<Invoice[]> => {
+    if (!db || !orgId) {
+      return ls.get<Invoice>(COLLECTIONS.INVOICES)
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }
-    const snapshot = await getDocs(collection(db!, COLLECTIONS.INVOICES));
-    return snapshotToData<Invoice>(snapshot).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const snap = await getDocs(orgCol(orgId, COLLECTIONS.INVOICES));
+    return snapshotToData<Invoice>(snap)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   },
 
-  createInvoice: async (invoice: Invoice, productsToUpdate: {id: string, newStock: number}[], automaticExpense?: Expense) => {
-    if (!db) {
-      // Local Transaction Simulation
+  createInvoice: async (
+    invoice: Invoice,
+    productsToUpdate: { id: string; newStock: number }[],
+    automaticExpense?: Expense,
+    orgId?: string,
+  ) => {
+    if (!db || !orgId) {
       ls.add(COLLECTIONS.INVOICES, invoice);
-      
       const products = ls.get<Product>(COLLECTIONS.PRODUCTS);
-      productsToUpdate.forEach(update => {
-         const pIndex = products.findIndex(p => p.id === update.id);
-         if (pIndex >= 0) {
-           products[pIndex].stock = update.newStock;
-         }
+      productsToUpdate.forEach(u => {
+        const idx = products.findIndex(p => p.id === u.id);
+        if (idx >= 0) products[idx].stock = u.newStock;
       });
       ls.set(COLLECTIONS.PRODUCTS, products);
-
-      if (automaticExpense) {
-        ls.add(COLLECTIONS.EXPENSES, automaticExpense);
-      }
+      if (automaticExpense) ls.add(COLLECTIONS.EXPENSES, automaticExpense);
       return;
     }
 
     const firestore = db!;
     const batch = writeBatch(firestore);
 
-    // 1. Create Invoice
-    const invoiceRef = doc(firestore, COLLECTIONS.INVOICES, invoice.id);
-    batch.set(invoiceRef, invoice);
-
-    // 2. Update Product Stocks atomically
+    batch.set(doc(firestore, 'organizations', orgId, COLLECTIONS.INVOICES, invoice.id), invoice);
     productsToUpdate.forEach(p => {
-      const productRef = doc(firestore, COLLECTIONS.PRODUCTS, p.id);
-      batch.update(productRef, { stock: p.newStock });
+      const ref = doc(firestore, 'organizations', orgId, COLLECTIONS.PRODUCTS, p.id);
+      batch.update(ref, { stock: p.newStock });
     });
-
-    // 3. Create Automatic Expense if provided
     if (automaticExpense) {
-      const expenseRef = doc(firestore, COLLECTIONS.EXPENSES, automaticExpense.id);
-      batch.set(expenseRef, automaticExpense);
+      batch.set(
+        doc(firestore, 'organizations', orgId, COLLECTIONS.EXPENSES, automaticExpense.id),
+        automaticExpense,
+      );
     }
-
     await batch.commit();
   },
 
-  addPayment: async (invoiceId: string, payment: Payment) => {
-    if (!db) {
-        const invoices = ls.get<Invoice>(COLLECTIONS.INVOICES);
-        const idx = invoices.findIndex(i => i.id === invoiceId);
-        if (idx >= 0) {
-            const inv = invoices[idx];
-            const newPayments = [...(inv.payments || []), payment];
-            const currentBalance = (inv.balance !== undefined && !isNaN(inv.balance)) ? inv.balance : inv.total;
-            const newBalance = Math.max(0, currentBalance - payment.amount);
-            
-            inv.payments = newPayments;
-            inv.balance = newBalance;
-            if (newBalance <= 0.01) {
-                inv.status = 'paid';
-                inv.balance = 0;
-            } else {
-                inv.status = 'pending';
-            }
-            ls.set(COLLECTIONS.INVOICES, invoices);
-        }
-        return;
+  addPayment: async (invoiceId: string, payment: Payment, orgId?: string) => {
+    if (!db || !orgId) {
+      const invoices = ls.get<Invoice>(COLLECTIONS.INVOICES);
+      const idx = invoices.findIndex(i => i.id === invoiceId);
+      if (idx >= 0) {
+        const inv = invoices[idx];
+        const newPayments = [...(inv.payments || []), payment];
+        const currentBalance = inv.balance !== undefined && !isNaN(inv.balance) ? inv.balance : inv.total;
+        const newBalance = Math.max(0, currentBalance - payment.amount);
+        inv.payments = newPayments;
+        inv.balance = newBalance;
+        inv.status = newBalance <= 0.01 ? 'paid' : 'pending';
+        if (inv.status === 'paid') inv.balance = 0;
+        ls.set(COLLECTIONS.INVOICES, invoices);
+      }
+      return;
     }
 
-    const invoiceRef = doc(db!, COLLECTIONS.INVOICES, invoiceId);
-    
-    // CORRECCIÓN IMPORTANTE:
-    // En Firestore, no se puede llamar a batch.update múltiples veces sobre la misma referencia en un solo batch para ciertos campos.
-    // Usamos updateDoc para combinar ambas operaciones en una sola llamada atómica directa al documento.
-    
+    const invoiceRef = doc(db!, 'organizations', orgId, COLLECTIONS.INVOICES, invoiceId);
     try {
       await updateDoc(invoiceRef, {
-          payments: arrayUnion(payment),
-          balance: increment(-payment.amount)
+        payments: arrayUnion(payment),
+        balance: increment(-payment.amount),
       });
-  
-      // Verificación secundaria para actualizar el estado si llega a 0
-      // Leemos el documento actualizado
       const snap = await getDoc(invoiceRef);
       if (snap.exists()) {
-          const data = snap.data() as Invoice;
-          // Usamos una tolerancia pequeña para errores de punto flotante
-          if ((data.balance || 0) <= 0.01) { 
-               await updateDoc(invoiceRef, { status: 'paid', balance: 0 });
-          }
+        const data = snap.data() as Invoice;
+        if ((data.balance || 0) <= 0.01) {
+          await updateDoc(invoiceRef, { status: 'paid', balance: 0 });
+        }
       }
     } catch (error) {
-      console.error("Error adding payment:", error);
-      throw error; // Re-throw para que la UI sepa que falló
+      logger.error('StorageService.addPayment', error);
+      throw error;
     }
   },
 
-  cancelInvoice: async (invoiceId: string, items: InvoiceItem[]) => {
-    if (!db) {
-      // Local Cancel
+  cancelInvoice: async (invoiceId: string, items: InvoiceItem[], orgId?: string) => {
+    if (!db || !orgId) {
       const invoices = ls.get<Invoice>(COLLECTIONS.INVOICES);
-      const invIndex = invoices.findIndex(i => i.id === invoiceId);
-      if (invIndex >= 0) {
-         invoices[invIndex].status = 'cancelled';
-         invoices[invIndex].haciendaStatus = 'anulado';
-         invoices[invIndex].balance = 0; // Clear balance
-         ls.set(COLLECTIONS.INVOICES, invoices);
-
-         const products = ls.get<Product>(COLLECTIONS.PRODUCTS);
-         (items || []).forEach(item => {
-           const pIndex = products.findIndex(p => p.id === item.productId);
-           if (pIndex >= 0) {
-             products[pIndex].stock += item.quantity;
-           }
-         });
-         ls.set(COLLECTIONS.PRODUCTS, products);
+      const idx = invoices.findIndex(i => i.id === invoiceId);
+      if (idx >= 0) {
+        invoices[idx].status = 'cancelled';
+        invoices[idx].haciendaStatus = 'anulado';
+        invoices[idx].balance = 0;
+        ls.set(COLLECTIONS.INVOICES, invoices);
+        const products = ls.get<Product>(COLLECTIONS.PRODUCTS);
+        (items || []).forEach(item => {
+          const pIdx = products.findIndex(p => p.id === item.productId);
+          if (pIdx >= 0) products[pIdx].stock += item.quantity;
+        });
+        ls.set(COLLECTIONS.PRODUCTS, products);
       }
       return;
     }
 
     const firestore = db!;
     const batch = writeBatch(firestore);
-
-    // 1. Mark Invoice as Cancelled
-    const invoiceRef = doc(firestore, COLLECTIONS.INVOICES, invoiceId);
-    batch.update(invoiceRef, { 
+    batch.update(doc(firestore, 'organizations', orgId, COLLECTIONS.INVOICES, invoiceId), {
       status: 'cancelled',
       haciendaStatus: 'anulado',
-      balance: 0
+      balance: 0,
     });
-
-    // 2. Restore Stock
     (items || []).forEach(item => {
       if (item.productId) {
-        const productRef = doc(firestore, COLLECTIONS.PRODUCTS, item.productId);
-        batch.set(productRef, { stock: increment(item.quantity) }, { merge: true });
+        const ref = doc(firestore, 'organizations', orgId, COLLECTIONS.PRODUCTS, item.productId);
+        batch.set(ref, { stock: increment(item.quantity) }, { merge: true });
       }
     });
-
     await batch.commit();
   },
 
   // Expenses
-  getExpenses: async (): Promise<Expense[]> => {
-    if (!db) {
-       const expenses = ls.get<Expense>(COLLECTIONS.EXPENSES);
-       return expenses.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  getExpenses: async (orgId?: string): Promise<Expense[]> => {
+    if (!db || !orgId) {
+      return ls.get<Expense>(COLLECTIONS.EXPENSES)
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }
-    const snapshot = await getDocs(collection(db!, COLLECTIONS.EXPENSES));
-    return snapshotToData<Expense>(snapshot).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const snap = await getDocs(orgCol(orgId, COLLECTIONS.EXPENSES));
+    return snapshotToData<Expense>(snap)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   },
 
-  addExpense: async (expense: Expense) => {
-    if (!db) return ls.add(COLLECTIONS.EXPENSES, expense);
-    await setDoc(doc(db!, COLLECTIONS.EXPENSES, expense.id), expense);
+  addExpense: async (expense: Expense, orgId?: string) => {
+    if (!db || !orgId) return ls.add(COLLECTIONS.EXPENSES, expense);
+    await setDoc(orgDoc(orgId, COLLECTIONS.EXPENSES, expense.id), expense);
   },
 
-  deleteExpense: async (id: string) => {
-    if (!db) return ls.delete(COLLECTIONS.EXPENSES, id);
-    await deleteDoc(doc(db!, COLLECTIONS.EXPENSES, id));
+  deleteExpense: async (id: string, orgId?: string) => {
+    if (!db || !orgId) return ls.delete(COLLECTIONS.EXPENSES, id);
+    await deleteDoc(orgDoc(orgId, COLLECTIONS.EXPENSES, id));
   },
 
   // Settings
-  getSettings: async (): Promise<AppSettings> => {
-    if (!db) {
-       const saved = localStorage.getItem(`${LS_PREFIX}${COLLECTIONS.SETTINGS}`);
-       if (saved) return JSON.parse(saved);
-       return defaultSettings;
+  getSettings: async (orgId?: string): Promise<AppSettings> => {
+    if (!db || !orgId) {
+      const saved = localStorage.getItem(`${LS_PREFIX}${COLLECTIONS.SETTINGS}`);
+      if (saved) return JSON.parse(saved);
+      return defaultSettings;
     }
-
-    const docRef = doc(db!, COLLECTIONS.SETTINGS, 'general');
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data() as AppSettings;
-      if (!data.hacienda) {
-        data.hacienda = defaultSettings.hacienda;
-      }
+    const ref = doc(db!, 'organizations', orgId, COLLECTIONS.SETTINGS, 'general');
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      const data = snap.data() as AppSettings;
+      if (!data.hacienda) data.hacienda = defaultSettings.hacienda;
       return data;
     }
     return defaultSettings;
   },
 
-  saveSettings: async (settings: AppSettings) => {
-    if (!db) {
-       localStorage.setItem(`${LS_PREFIX}${COLLECTIONS.SETTINGS}`, JSON.stringify(settings));
-       return;
+  saveSettings: async (settings: AppSettings, orgId?: string) => {
+    if (!db || !orgId) {
+      localStorage.setItem(`${LS_PREFIX}${COLLECTIONS.SETTINGS}`, JSON.stringify(settings));
+      return;
     }
-    await setDoc(doc(db!, COLLECTIONS.SETTINGS, 'general'), settings);
+    await setDoc(doc(db!, 'organizations', orgId, COLLECTIONS.SETTINGS, 'general'), settings);
   },
-  
-  // Seeder
-  seedData: async () => {
-    const products = await StorageService.getProducts();
+
+  // Seed demo data
+  seedData: async (orgId?: string) => {
+    const products = await StorageService.getProducts(orgId);
     if (products.length === 0) {
       const demoProducts: Product[] = [
         { id: '1', name: 'Laptop Pro X', description: 'Laptop de alto rendimiento', sku: 'LPX-001', price: 650000, cost: 450000, currency: 'CRC', stock: 10, category: 'Electrónica' },
         { id: '2', name: 'Monitor 27"', description: 'Monitor 4K UHD', sku: 'MON-002', price: 185000, cost: 120000, currency: 'CRC', stock: 25, category: 'Electrónica' },
         { id: '3', name: 'Silla Ergonómica', description: 'Silla de oficina premium', sku: 'CHR-003', price: 150, cost: 90, currency: 'USD', stock: 5, category: 'Muebles' },
       ];
-      for (const p of demoProducts) {
-        await StorageService.addProduct(p);
-      }
+      for (const p of demoProducts) await StorageService.addProduct(p, orgId);
     }
 
-    const customers = await StorageService.getCustomers();
+    const customers = await StorageService.getCustomers(orgId);
     if (customers.length === 0) {
       const demoCustomers: Customer[] = [
-        { 
-          id: '1', 
-          name: 'Juan Pérez', 
-          commercialName: 'Juan Pérez',
-          email: 'juan@example.com', 
-          taxId: '1-1111-1111', 
-          identificationType: '01 Cédula Física',
-          taxRegime: 'Simplificado',
-          country: 'Costa Rica',
-          province: 'San José',
-          canton: 'San José',
-          district: 'Pavas',
-          zipCode: '10109',
-          address: 'De la Embajada Americana 200m Oeste', 
-          phone: '8888-8888' 
+        {
+          id: '1', name: 'Juan Pérez', commercialName: 'Juan Pérez',
+          email: 'juan@example.com', taxId: '1-1111-1111', identificationType: '01 Cédula Física',
+          taxRegime: 'Simplificado', country: 'Costa Rica', province: 'San José', canton: 'San José',
+          district: 'Pavas', zipCode: '10109', address: 'De la Embajada Americana 200m Oeste', phone: '8888-8888',
         },
-        { 
-          id: '2', 
-          name: 'Corporación ABC S.A.', 
-          commercialName: 'ABC Corp',
-          email: 'facturacion@abccorp.com', 
-          taxId: '3-101-654321', 
-          identificationType: '02 Cédula Jurídica',
-          taxRegime: 'Tradicional',
-          country: 'Costa Rica',
-          province: 'Heredia',
-          canton: 'Belén',
-          district: 'La Asunción',
-          zipCode: '40701',
-          address: 'Centro Corporativo El Cafetal, Edificio A', 
-          phone: '2299-9999' 
+        {
+          id: '2', name: 'Corporación ABC S.A.', commercialName: 'ABC Corp',
+          email: 'facturacion@abccorp.com', taxId: '3-101-654321', identificationType: '02 Cédula Jurídica',
+          taxRegime: 'Tradicional', country: 'Costa Rica', province: 'Heredia', canton: 'Belén',
+          district: 'La Asunción', zipCode: '40701', address: 'Centro Corporativo El Cafetal, Edificio A', phone: '2299-9999',
         },
       ];
-      for (const c of demoCustomers) {
-        await StorageService.addCustomer(c);
-      }
+      for (const c of demoCustomers) await StorageService.addCustomer(c, orgId);
     }
-  }
+  },
 };

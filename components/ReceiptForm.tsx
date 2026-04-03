@@ -3,6 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Invoice, Payment, AppSettings } from '../types';
 import { StorageService } from '../services/storageService';
+import { logger } from '../services/logger';
 import { Search, Calendar, CreditCard, DollarSign, FileText, CheckCircle2, User, Wallet, ArrowRight, Printer, Plus, X } from 'lucide-react';
 import ReceiptPrint from './ReceiptPrint';
 
@@ -100,7 +101,7 @@ const ReceiptForm: React.FC<ReceiptFormProps> = ({ invoices, onAddPayment }) => 
       });
 
     } catch (error) {
-      console.error(error);
+      logger.error('ReceiptForm: Error saving payment', error);
       alert('Error al guardar el recibo.');
     } finally {
       setIsSubmitting(false);
