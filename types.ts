@@ -5,30 +5,27 @@ export interface Product {
   description: string;
   sku: string;
   price: number;
-  cost?: number; // Nuevo: Costo de adquisición
-  currency: string; // 'CRC' | 'USD'
+  cost?: number;
+  currency: string;
   stock: number;
   category: string;
 }
 
 export interface Customer {
   id: string;
-  name: string; // Razón Social
-  commercialName?: string; // Nombre Comercial
+  name: string;
+  commercialName?: string;
   email: string;
-  identificationType: string; // Cédula Física, Jurídica, DIMEX, Pasaporte, etc.
-  taxId: string; // El número en sí
-  taxRegime?: string; // Régimen Simplificado, Tradicional, etc.
-  economicActivity?: string; // Código de actividad económica
-  
-  // Dirección Fiscal Detallada
+  identificationType: string;
+  taxId: string;
+  taxRegime?: string;
+  economicActivity?: string;
   country: string;
-  province: string; // Provincia
-  canton: string; // Cantón
-  district: string; // Distrito
+  province: string;
+  canton: string;
+  district: string;
   zipCode?: string;
-  address: string; // Señas exactas / Calle / Número
-  
+  address: string;
   phone: string;
 }
 
@@ -37,9 +34,9 @@ export interface InvoiceItem {
   productName: string;
   quantity: number;
   price: number;
-  cost?: number; // Nuevo: Para guardar el costo histórico al momento de la venta
+  cost?: number;
   discount?: number;
-  description?: string; // Para el campo 'Detalle'
+  description?: string;
   total: number;
 }
 
@@ -55,9 +52,9 @@ export interface Payment {
 export interface Invoice {
   id: string;
   number: string;
-  consecutive?: string; // Clave numérica completa de Hacienda (simulada)
-  electronicKey?: string; // Clave de 50 dígitos
-  haciendaStatus?: 'aceptado' | 'rechazado' | 'procesando' | 'error' | 'no_enviado' | 'anulado'; // Nuevo estado
+  consecutive?: string;
+  electronicKey?: string;
+  haciendaStatus?: 'aceptado' | 'rechazado' | 'procesando' | 'error' | 'no_enviado' | 'anulado';
   customerId: string;
   customerName: string;
   date: string;
@@ -68,18 +65,13 @@ export interface Invoice {
   tax: number;
   total: number;
   status: 'paid' | 'pending' | 'cancelled';
-  
-  // Payment Info
-  paymentMethod?: string; // Método del pago inicial
-  saleCondition?: string; // Contado / Crédito
-  
-  // Credit Logic
-  balance?: number; // Saldo pendiente
-  payments?: Payment[]; // Historial de abonos
-  
+  paymentMethod?: string;
+  saleCondition?: string;
+  balance?: number;
+  payments?: Payment[];
   notes?: string;
   reference?: string;
-  currency: string; // 'CRC' | 'USD'
+  currency: string;
   exchangeRate?: number;
 }
 
@@ -87,18 +79,18 @@ export interface Expense {
   id: string;
   date: string;
   provider: string;
-  category: string; // 'Inventario', 'Servicios', 'Salarios', 'Alquiler', 'Otros', 'Costo de Ventas'
+  category: string;
   description: string;
   amount: number;
   currency: string;
-  reference?: string; // Factura del proveedor
+  reference?: string;
 }
 
 export interface HaciendaConfig {
-  username?: string; // CPF-...
+  username?: string;
   password?: string;
-  pin?: string; // 4 digitos
-  certificateUploaded?: boolean; // Si ya se subió el p12
+  pin?: string;
+  certificateUploaded?: boolean;
   environment: 'staging' | 'production';
 }
 
@@ -111,12 +103,87 @@ export interface AppSettings {
   companyWebsite?: string;
   footerMessage?: string;
   currency: string;
-  exchangeRate: number; // Tipo de Cambio
+  exchangeRate: number;
   taxRate: number;
-  address: string; // Dirección resumida
+  address: string;
   province?: string;
   canton?: string;
   district?: string;
-  
-  hacienda?: HaciendaConfig; // Credenciales API
+  hacienda?: HaciendaConfig;
+}
+
+// ── Multi-org & Permissions ────────────────────────────────────────────────
+
+export type Permission =
+  | 'view_dashboard'
+  | 'manage_inventory'
+  | 'manage_customers'
+  | 'create_invoices'
+  | 'view_invoices'
+  | 'manage_expenses'
+  | 'view_reports'
+  | 'view_cierre'
+  | 'manage_settings'
+  | 'manage_users';
+
+export const ALL_PERMISSIONS: Permission[] = [
+  'view_dashboard',
+  'manage_inventory',
+  'manage_customers',
+  'create_invoices',
+  'view_invoices',
+  'manage_expenses',
+  'view_reports',
+  'view_cierre',
+  'manage_settings',
+  'manage_users',
+];
+
+export const PERMISSION_LABELS: Record<Permission, { label: string; description: string }> = {
+  view_dashboard:    { label: 'Ver Panel Principal',     description: 'Acceso al resumen de ventas y estadísticas.' },
+  manage_inventory:  { label: 'Gestionar Inventario',    description: 'Ver, agregar, editar y eliminar productos.' },
+  manage_customers:  { label: 'Gestionar Clientes',      description: 'Ver, agregar y editar clientes.' },
+  create_invoices:   { label: 'Crear Facturas',          description: 'Emitir nuevas facturas y recibos.' },
+  view_invoices:     { label: 'Ver Facturas',            description: 'Consultar el historial de facturas.' },
+  manage_expenses:   { label: 'Gestionar Gastos',        description: 'Ver, registrar y eliminar gastos.' },
+  view_reports:      { label: 'Ver Reportes',            description: 'Acceso a los reportes financieros.' },
+  view_cierre:       { label: 'Cierre de Caja',          description: 'Generar y ver cierres de caja.' },
+  manage_settings:   { label: 'Configuración',           description: 'Modificar la configuración de la empresa.' },
+  manage_users:      { label: 'Gestionar Usuarios',      description: 'Agregar usuarios y administrar permisos.' },
+};
+
+export type MemberRole = 'owner' | 'user';
+
+export interface OrgMember {
+  uid: string;
+  email: string;
+  displayName: string;
+  role: MemberRole;
+  permissions: Permission[];
+  addedAt: string; // ISO string
+}
+
+export interface Organization {
+  id: string;
+  name: string;
+  ownerId: string;
+  createdAt: string;
+}
+
+export interface UserProfile {
+  uid: string;
+  email: string;
+  displayName: string;
+  organizationId: string | null;
+  createdAt: string;
+}
+
+export interface InviteCode {
+  code: string;
+  orgId: string;
+  orgName: string;
+  createdBy: string;
+  createdAt: string;
+  expiresAt: string;
+  used: boolean;
 }

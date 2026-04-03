@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Invoice, AppSettings, Customer, Payment } from '../types';
 import { Eye, Printer, FileText, X, CheckCircle, AlertTriangle, Clock, Ban, FileWarning, ChevronRight, Banknote, Calendar, CreditCard, DollarSign, History } from 'lucide-react';
 import { StorageService } from '../services/storageService';
+import { logger } from '../services/logger';
 import InvoicePrint from './InvoicePrint';
 import ReceiptPrint from './ReceiptPrint';
 
@@ -179,7 +180,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, onCancelInvoice, on
         
         setIsPayModalOpen(false);
       } catch (error) {
-        console.error("Failed to add payment", error);
+        logger.error('InvoiceList: Failed to add payment', error);
         alert("Hubo un error al guardar el pago. Por favor intente nuevamente.");
       }
   };

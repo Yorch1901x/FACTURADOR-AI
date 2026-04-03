@@ -3,38 +3,45 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore, Firestore } from "firebase/firestore";
 import { getAuth, Auth } from "firebase/auth";
+import { logger } from "./logger";
 
-// Configuración cargada desde import.meta.env (estándar de Vite)
+// Typed access to Vite's import.meta.env
+const env = (import.meta as ImportMeta & { env: Record<string, string | undefined> }).env;
+
 const firebaseConfig = {
-  apiKey: (import.meta as any).env.VITE_FIREBASE_API_KEY,
-  authDomain: (import.meta as any).env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: (import.meta as any).env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: (import.meta as any).env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: (import.meta as any).env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: (import.meta as any).env.VITE_FIREBASE_APP_ID,
-  measurementId: (import.meta as any).env.VITE_FIREBASE_MEASUREMENT_ID
+  apiKey:            env.VITE_FIREBASE_API_KEY,
+  authDomain:        env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId:         env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket:     env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId:             env.VITE_FIREBASE_APP_ID,
+  measurementId:     env.VITE_FIREBASE_MEASUREMENT_ID,
 };
+
+// Validate that ALL required fields are present before initialising
+const REQUIRED_KEYS: (keyof typeof firebaseConfig)[] = [
+  'apiKey', 'authDomain', 'projectId', 'appId',
+];
+const allPresent = REQUIRED_KEYS.every(k => Boolean(firebaseConfig[k]));
 
 let app = null;
 let db: Firestore | null = null;
 let auth: Auth | null = null;
 
-// Intentar inicializar solo si la configuración mínima existe
-if (firebaseConfig.apiKey && firebaseConfig.projectId) {
+if (allPresent) {
   try {
     app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
+    db  = getFirestore(app);
     auth = getAuth(app);
-    
+
     if (typeof window !== 'undefined' && firebaseConfig.measurementId) {
       getAnalytics(app);
     }
-    console.log("Firebase configurado correctamente.");
   } catch (error) {
-    console.error("Error en Firebase config:", error);
+    logger.error('Firebase initialization failed.', error);
   }
 } else {
-  console.warn("Firebase no configurado. Usando almacenamiento local (LocalStorage).");
+  logger.warn('Firebase no configurado. Usando almacenamiento local (LocalStorage).');
 }
 
 export const isFirebaseInitialized = !!app;

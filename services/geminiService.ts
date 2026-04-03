@@ -1,6 +1,7 @@
 
 import { GoogleGenAI } from "@google/genai";
 import { Product, Invoice } from "../types";
+import { logger } from "./logger";
 
 export const GeminiService = {
   /**
@@ -12,13 +13,13 @@ export const GeminiService = {
       const prompt = `Escribe una descripción corta, atractiva y profesional para un producto llamado "${name}" que pertenece a la categoría "${category}". Máximo 2 frases. En español.`;
       
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-2.0-flash',
         contents: prompt,
       });
       
       return response.text?.trim() || "No se pudo generar la descripción.";
     } catch (error) {
-      console.error("Gemini Error:", error);
+      logger.error('GeminiService.generateProductDescription', error);
       return "Error al conectar con el asistente de IA.";
     }
   },
@@ -49,13 +50,13 @@ export const GeminiService = {
       `;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
+        model: 'gemini-2.0-flash',
         contents: prompt,
       });
 
       return response.text || "No se pudo generar el análisis.";
     } catch (error) {
-      console.error("Gemini Error:", error);
+      logger.error('GeminiService.analyzeBusinessData', error);
       return "Error al analizar los datos.";
     }
   }

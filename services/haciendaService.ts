@@ -1,4 +1,6 @@
 
+import { logger } from './logger';
+
 export const HaciendaService = {
   /**
    * Consulta la información de un contribuyente en la API pública de Hacienda
@@ -54,7 +56,7 @@ export const HaciendaService = {
       };
 
     } catch (error) {
-      console.error("Hacienda Service Error:", error);
+      logger.error('HaciendaService.getTaxpayerInfo', error);
       throw error;
     }
   }
