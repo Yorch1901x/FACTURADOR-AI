@@ -4,7 +4,7 @@ import { useAuth, validatePassword } from '../contexts/AuthContext';
 import { rateLimiter } from '../services/rateLimiter';
 import {
   Lock, Mail, Loader2, AlertCircle, LogIn, UserPlus, ArrowLeft, Eye, EyeOff,
-  Sparkles, Shield, Zap, LayoutDashboard
+  Sparkles, Shield, Zap, LayoutDashboard, Check, X
 } from 'lucide-react';
 
 const Login: React.FC = () => {
@@ -63,7 +63,7 @@ const Login: React.FC = () => {
 
   const pillFeatures = [
     { icon: Shield, label: 'Datos seguros' },
-    { icon: Zap,    label: 'Acceso instantáneo' },
+    { icon: Zap, label: 'Acceso instantáneo' },
     { icon: Sparkles, label: 'Potenciado por IA' },
   ];
 
@@ -223,6 +223,34 @@ const Login: React.FC = () => {
                       {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                     </button>
                   </div>
+
+                  {/* Password requirements — only shown during registration */}
+                  {isRegistering && (
+                    <div className="mt-3 p-3.5 bg-gray-50 border border-gray-200 rounded-xl space-y-2">
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Requisitos de contraseña</p>
+                      {[
+                        { label: 'Mínimo 8 caracteres', met: password.length >= 8 },
+                        { label: 'Al menos una letra mayúscula', met: /[A-Z]/.test(password) },
+                        { label: 'Al menos un número', met: /[0-9]/.test(password) },
+                        { label: 'Al menos un carácter especial (!@#$%^&*…)', met: /[^A-Za-z0-9]/.test(password) },
+                      ].map(({ label, met }) => (
+                        <div key={label} className="flex items-center gap-2">
+                          <span
+                            className="flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center transition-all duration-300"
+                            style={{
+                              backgroundColor: met ? '#000000' : '#e5e7eb',
+                            }}
+                          >
+                            {met
+                              ? <Check size={10} color="#ffffff" strokeWidth={3} />
+                              : <X size={8} color="#9ca3af" strokeWidth={3} />}
+                          </span>
+                          <span className={`text-xs transition-colors duration-300 ${met ? 'text-gray-900 font-medium' : 'text-gray-400'
+                            }`}>{label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Submit */}
