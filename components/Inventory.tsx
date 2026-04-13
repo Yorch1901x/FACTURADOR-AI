@@ -16,7 +16,7 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
   const [searchTerm, setSearchTerm] = useState('');
   
   const [formData, setFormData] = useState<Partial<Product>>({
-    name: '', sku: '', price: 0, cost: 0, currency: 'CRC', stock: 0, category: '', description: ''
+    name: '', sku: '', price: 0, cost: 0, currency: 'CRC', stock: 0, category: '', description: '', type: 'producto', taxRate: 13
   });
   const [generatingDesc, setGeneratingDesc] = useState(false);
 
@@ -26,7 +26,7 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
       setFormData(product);
     } else {
       setEditingProduct(null);
-      setFormData({ name: '', sku: '', price: 0, cost: 0, currency: 'CRC', stock: 0, category: 'General', description: '' });
+      setFormData({ name: '', sku: '', price: 0, cost: 0, currency: 'CRC', stock: 0, category: 'General', description: '', type: 'producto', taxRate: 13 });
     }
     setIsModalOpen(true);
   };
@@ -259,6 +259,32 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                    <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-gray-700">Tipo</label>
+                    <select 
+                      value={formData.type || 'producto'} 
+                      onChange={e => setFormData({...formData, type: e.target.value as 'producto' | 'servicio'})} 
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all bg-white"
+                    >
+                      <option value="producto">Producto</option>
+                      <option value="servicio">Servicio</option>
+                    </select>
+                   </div>
+                   <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-gray-700">IVA (%)</label>
+                    <select 
+                      value={formData.taxRate !== undefined ? formData.taxRate : 13} 
+                      onChange={e => setFormData({...formData, taxRate: parseInt(e.target.value)})} 
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all bg-white"
+                    >
+                      <option value="0">0% - Exento</option>
+                      <option value="1">1%</option>
+                      <option value="2">2%</option>
+                      <option value="4">4%</option>
+                      <option value="8">8%</option>
+                      <option value="13">13%</option>
+                    </select>
+                   </div>
+                   <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-gray-700">Moneda</label>
                     <select 
                       value={formData.currency || 'CRC'} 
@@ -271,7 +297,7 @@ const Inventory: React.FC<InventoryProps> = ({ products, onAddProduct, onUpdateP
                    </div>
                    <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-gray-700">Stock</label>
-                    <input required type="number" value={formData.stock} onChange={e => setFormData({...formData, stock: parseInt(e.target.value)})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" />
+                    <input required disabled={formData.type === 'servicio'} type="number" value={formData.stock || 0} onChange={e => setFormData({...formData, stock: parseInt(e.target.value)})} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all disabled:bg-gray-100 disabled:text-gray-400" />
                    </div>
                 </div>
                 

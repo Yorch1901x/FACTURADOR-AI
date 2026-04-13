@@ -9,6 +9,8 @@ export interface Product {
   currency: string;
   stock: number;
   category: string;
+  type?: 'producto' | 'servicio';
+  taxRate?: number;
 }
 
 export interface Customer {
